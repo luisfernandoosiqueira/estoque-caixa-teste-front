@@ -1,0 +1,93 @@
+<!-- Filtros -->
+<div class="card flex align-items-center gap-3 flex-wrap p-3">
+  <!-- Categoria -->
+  <p-dropdown
+    [options]="opcoesCategoria"
+    [(ngModel)]="filtroCategoria"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Categoria"
+    [showClear]="true"
+    class="w-15rem">
+  </p-dropdown>
+
+  <!-- Status -->
+  <p-dropdown
+    [options]="opcoesAtivo"
+    [(ngModel)]="filtroAtivo"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Status"
+    class="w-12rem">
+  </p-dropdown>
+
+  <button pButton icon="pi pi-search" label="Buscar" (click)="carregar()"></button>
+
+  <div class="flex-1"></div>
+
+  <button
+    pButton
+    label="Novo Produto"
+    icon="pi pi-plus"
+    [routerLink]="['/produtos/novo']">
+  </button>
+</div>
+
+<!-- Tabela -->
+<div class="card mt-3">
+  <p-table
+    [value]="produtos"
+    [tableStyle]="{ 'min-width': '70rem' }"
+    [loading]="loading"
+    styleClass="p-datatable-sm">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:6rem;">ID</th>
+        <th>Código</th>
+        <th>Nome</th>
+        <th>Categoria</th>
+        <th>Preço Unitário (R$)</th>
+        <th>Estoque</th>
+        <th>Status</th>
+        <th style="width:16rem;">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-p>
+      <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.codigo }}</td>
+        <td>{{ p.nome }}</td>
+        <td>{{ p.categoria }}</td>
+        <td>{{ p.precoUnitario | number:'1.2-2' }}</td>
+        <td>{{ p.quantidadeEstoque }}</td>
+        <td>{{ p.ativo ? 'Ativo' : 'Inativo' }}</td>
+        <td class="flex gap-2 flex-wrap">
+          <button
+            pButton
+            label="Editar"
+            icon="pi pi-pencil"
+            size="small"
+            (click)="editar(p.id)">
+          </button>
+
+          <button
+            pButton
+            label="Excluir"
+            icon="pi pi-trash"
+            severity="danger"
+            size="small"
+            (click)="excluir(p.id)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8">Nenhum produto encontrado.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

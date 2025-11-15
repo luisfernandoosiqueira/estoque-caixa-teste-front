@@ -1,0 +1,135 @@
+<div class="p-4">
+  <p-card>
+
+    <h2>Registrar Venda</h2>
+
+    <!-- Cabeçalho: usuário + valor recebido -->
+    <div class="grid mt-4">
+      <div class="col-12 md:col-6">
+        <label class="block mb-2">Usuário (Operador)</label>
+        <p-dropdown
+          [options]="usuarios"
+          [(ngModel)]="usuarioId"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Selecione o usuário"
+          class="w-full"
+          (onChange)="marcarAlterado()">
+        </p-dropdown>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <label class="block mb-2">Valor Recebido</label>
+        <p-inputNumber
+          [(ngModel)]="valorRecebido"
+          mode="currency"
+          currency="BRL"
+          class="w-full"
+          (ngModelChange)="recalcular(); marcarAlterado()">
+        </p-inputNumber>
+      </div>
+    </div>
+
+    <h3 class="mt-4">Adicionar Item</h3>
+
+    <div class="grid mt-2">
+      <div class="col-12 md:col-6">
+        <label class="block mb-2">Produto</label>
+        <p-dropdown
+          [options]="produtos"
+          [(ngModel)]="itemSelecionado"
+          optionLabel="nome"
+          placeholder="Selecione um produto"
+          class="w-full"
+          (onChange)="marcarAlterado()">
+        </p-dropdown>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <label class="block mb-2">Quantidade</label>
+        <p-inputNumber
+          [(ngModel)]="quantidade"
+          [min]="1"
+          class="w-full"
+          (ngModelChange)="marcarAlterado()">
+        </p-inputNumber>
+      </div>
+
+      <div class="col-12 md:col-3 flex align-items-end">
+        <button
+          pButton
+          label="Adicionar"
+          icon="pi pi-plus"
+          (click)="adicionarItem()">
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabela de itens -->
+    <div class="mt-4">
+      <p-table
+        [value]="itens"
+        styleClass="p-datatable-sm"
+        [tableStyle]="{ 'min-width': '50rem' }">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Produto</th>
+            <th style="width: 6rem;">Qtd</th>
+            <th>Preço</th>
+            <th>Subtotal</th>
+            <th style="width: 6rem;"></th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-i let-rowIndex="rowIndex">
+          <tr>
+            <td>{{ i.produto?.nome }}</td>
+            <td>{{ i.quantidade }}</td>
+            <td>R$ {{ i.precoUnitario | number:'1.2-2' }}</td>
+            <td>R$ {{ i.subtotal | number:'1.2-2' }}</td>
+            <td>
+              <button
+                pButton
+                icon="pi pi-trash"
+                severity="danger"
+                (click)="removerItem(rowIndex)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5">Nenhum item adicionado.</td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+    </div>
+
+    <!-- Totais -->
+    <div class="mt-4 totals">
+      <p><b>Total:</b> R$ {{ valorTotal | number:'1.2-2' }}</p>
+      <p><b>Troco:</b> R$ {{ troco | number:'1.2-2' }}</p>
+    </div>
+
+    <!-- Botões -->
+    <div class="flex gap-2 mt-4 flex-wrap">
+      <button
+        pButton
+        label="Salvar Venda"
+        icon="pi pi-save"
+        (click)="salvar()">
+      </button>
+
+      <button
+        pButton
+        label="Cancelar"
+        class="p-button-text"
+        (click)="cancelar()">
+      </button>
+    </div>
+
+  </p-card>
+</div>

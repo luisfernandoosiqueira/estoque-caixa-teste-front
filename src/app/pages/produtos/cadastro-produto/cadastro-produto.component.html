@@ -1,0 +1,99 @@
+<div class="mb-4 p-4">
+  <p-card>
+    <h2>{{ id ? 'Editar Produto' : 'Cadastro de Produto' }}</h2>
+
+    <div class="grid mt-4">
+      <!-- Código -->
+      <div class="col-12 md:col-4">
+        <label for="codigo" class="block mb-2">Código</label>
+        <input
+          id="codigo"
+          type="text"
+          pInputText
+          class="w-full"
+          [(ngModel)]="codigo"
+          (ngModelChange)="marcarAlterado()" />
+      </div>
+
+      <!-- Nome -->
+      <div class="col-12 md:col-8">
+        <label for="nome" class="block mb-2">Nome</label>
+        <input
+          id="nome"
+          type="text"
+          pInputText
+          class="w-full"
+          [(ngModel)]="nome"
+          (ngModelChange)="marcarAlterado()" />
+      </div>
+
+      <!-- Categoria -->
+      <div class="col-12 md:col-6">
+        <label for="categoria" class="block mb-2">Categoria</label>
+        <p-dropdown
+          inputId="categoria"
+          [options]="categorias"
+          [(ngModel)]="categoria"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione uma categoria"
+          [editable]="true"
+          class="w-full"
+          (onChange)="marcarAlterado()"
+          (onBlur)="marcarAlterado()">
+        </p-dropdown>
+      </div>
+
+      <!-- Preço Unitário -->
+      <div class="col-12 md:col-3">
+        <label for="precoUnitario" class="block mb-2">Preço Unitário (R$)</label>
+        <input
+          id="precoUnitario"
+          type="number"
+          pInputText
+          class="w-full"
+          [(ngModel)]="precoUnitario"
+          (ngModelChange)="marcarAlterado()" />
+      </div>
+
+      <!-- Quantidade em Estoque -->
+      <div class="col-12 md:col-3">
+        <label for="quantidadeEstoque" class="block mb-2">Quantidade em Estoque</label>
+        <input
+          id="quantidadeEstoque"
+          type="number"
+          pInputText
+          class="w-full"
+          [(ngModel)]="quantidadeEstoque"
+          (ngModelChange)="marcarAlterado()" />
+      </div>
+
+      <!-- Ativo -->
+      <div class="col-12 mt-3 flex align-items-center gap-2">
+        <label for="ativo" class="mr-2">Ativo?</label>
+        <input
+          id="ativo"
+          type="checkbox"
+          [(ngModel)]="ativo"
+          (change)="marcarAlterado()" />
+      </div>
+    </div>
+
+    <!-- Botões -->
+    <div class="flex gap-2 mt-4 flex-wrap">
+      <button
+        pButton
+        [label]="labelSalvar"
+        icon="pi pi-save"
+        (click)="salvar()">
+      </button>
+
+      <button
+        pButton
+        label="Cancelar"
+        class="p-button-text"
+        (click)="cancelar()">
+      </button>
+    </div>
+  </p-card>
+</div>

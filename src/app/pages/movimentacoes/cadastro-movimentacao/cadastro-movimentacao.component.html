@@ -1,0 +1,79 @@
+<div class="mb-4 p-4">
+  <p-card>
+    <h2>Registro de Movimentação de Estoque</h2>
+
+    <div class="grid mt-4">
+      <!-- Produto -->
+      <div class="col-12 md:col-6">
+        <label for="produto" class="block mb-2">Produto</label>
+        <p-dropdown
+          inputId="produto"
+          [options]="produtos"
+          [(ngModel)]="produtoId"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Selecione um produto"
+          class="w-full"
+          (onChange)="marcarAlterado()">
+        </p-dropdown>
+      </div>
+
+      <!-- Tipo -->
+      <div class="col-12 md:col-6">
+        <label for="tipo" class="block mb-2">Tipo de Movimentação</label>
+        <p-dropdown
+          inputId="tipo"
+          [options]="tiposMovimentacao"
+          [(ngModel)]="tipo"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione o tipo"
+          class="w-full"
+          (onChange)="marcarAlterado()">
+        </p-dropdown>
+      </div>
+
+      <!-- Quantidade -->
+      <div class="col-12 md:col-4">
+        <label for="quantidade" class="block mb-2">Quantidade</label>
+        <p-inputNumber
+          inputId="quantidade"
+          [(ngModel)]="quantidade"
+          [min]="1"
+          class="w-full"
+          (ngModelChange)="marcarAlterado()">
+        </p-inputNumber>
+      </div>
+
+      <!-- Observação -->
+      <div class="col-12 mt-3">
+        <label for="observacao" class="block mb-2">Observação (opcional)</label>
+        <textarea
+          id="observacao"
+          rows="3"
+          pInputText
+          class="w-full"
+          [(ngModel)]="observacao"
+          (ngModelChange)="marcarAlterado()">
+        </textarea>
+      </div>
+    </div>
+
+    <!-- Botões -->
+    <div class="flex gap-2 mt-4 flex-wrap">
+      <button
+        pButton
+        label="Salvar"
+        icon="pi pi-save"
+        (click)="salvar()">
+      </button>
+
+      <button
+        pButton
+        label="Cancelar"
+        class="p-button-text"
+        (click)="cancelar()">
+      </button>
+    </div>
+  </p-card>
+</div>

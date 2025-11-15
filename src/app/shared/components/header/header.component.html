@@ -1,0 +1,33 @@
+<p-menubar [model]="items">
+  <!-- Logo e título -->
+  <ng-template pTemplate="start">
+    <div class="flex align-items-center gap-2 px-2">
+      <i class="pi pi-briefcase text-lg text-primary"></i>
+      <span class="font-semibold text-lg">Gestão de Caixa e Estoque</span>
+    </div>
+  </ng-template>
+
+  <!-- Usuário + Sair -->
+  <ng-template pTemplate="end">
+    <div class="flex align-items-center gap-3 px-3">
+      <!-- E-mail do usuário logado -->
+      <div class="flex align-items-center gap-2 text-600">
+        <i class="pi pi-user"></i>
+        <span class="truncate max-w-15rem md:max-w-20rem" title="{{ userEmail }}">
+          {{ userEmail }}
+        </span>
+      </div>
+
+      <!-- Botão Sair -->
+      <button
+        pButton
+        type="button"
+        icon="pi pi-sign-out"
+        label="Sair"
+        severity="danger"
+        class="p-button-sm"
+        (click)="sair()">
+      </button>
+    </div>
+  </ng-template>
+</p-menubar>

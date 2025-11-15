@@ -1,0 +1,102 @@
+<!-- src/app/pages/dashboard/dashboard.component.html -->
+<div class="p-4 dashboard-container">
+  <div class="grid">
+
+    <!-- Card Produtos -->
+    <div class="col-12 md:col-6 xl:col-3">
+      <p-card header="Produtos" subheader="Controle de estoque">
+        <div class="flex flex-column gap-2">
+          <span>Gerencie o cadastro e estoque dos produtos.</span>
+          <div class="flex gap-2 mt-2">
+            <a
+              routerLink="/produtos"
+              pButton
+              label="Ver lista"
+              class="p-button-text p-button-sm">
+            </a>
+            <a
+              routerLink="/produtos/novo"
+              pButton
+              label="Novo produto"
+              icon="pi pi-plus"
+              class="p-button-sm">
+            </a>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Card Usuários -->
+    <div class="col-12 md:col-6 xl:col-3">
+      <p-card header="Usuários" subheader="Acesso ao sistema">
+        <div class="flex flex-column gap-2">
+          <span>Cadastre e gerencie os usuários do sistema.</span>
+          <div class="flex gap-2 mt-2">
+            <a
+              routerLink="/usuarios"
+              pButton
+              label="Ver lista"
+              class="p-button-text p-button-sm">
+            </a>
+            <a
+              routerLink="/usuarios/novo"
+              pButton
+              label="Novo usuário"
+              icon="pi pi-user-plus"
+              class="p-button-sm">
+            </a>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Card Vendas -->
+    <div class="col-12 md:col-6 xl:col-3">
+      <p-card header="Vendas" subheader="Histórico e registro">
+        <div class="flex flex-column gap-2">
+          <span>Registre novas vendas e acompanhe o histórico.</span>
+          <div class="flex gap-2 mt-2">
+            <a
+              routerLink="/vendas"
+              pButton
+              label="Ver vendas"
+              class="p-button-text p-button-sm">
+            </a>
+            <a
+              routerLink="/vendas/novo"
+              pButton
+              label="Nova venda"
+              icon="pi pi-shopping-cart"
+              class="p-button-sm">
+            </a>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Card Movimentações -->
+    <div class="col-12 md:col-6 xl:col-3">
+      <p-card header="Movimentações" subheader="Entradas, saídas e ajustes">
+        <div class="flex flex-column gap-2">
+          <span>Controle de movimentações de estoque.</span>
+          <div class="flex gap-2 mt-2">
+            <a
+              routerLink="/movimentacoes"
+              pButton
+              label="Ver movimentações"
+              class="p-button-text p-button-sm">
+            </a>
+            <a
+              routerLink="/movimentacoes/cadastro"
+              pButton
+              label="Registrar"
+              icon="pi pi-plus-circle"
+              class="p-button-sm">
+            </a>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+  </div>
+</div>

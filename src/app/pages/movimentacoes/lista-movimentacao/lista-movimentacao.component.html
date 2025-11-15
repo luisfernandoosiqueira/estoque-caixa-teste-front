@@ -1,0 +1,114 @@
+<!-- src/app/pages/movimentacoes/lista-movimentacao/lista-movimentacao.component.html -->
+
+<!-- Filtros -->
+<div class="card filtros flex align-items-center gap-3 flex-wrap p-3">
+  <!-- Data início -->
+  <div class="campo-data">
+    <label class="block mb-1">Início</label>
+    <p-calendar
+      [(ngModel)]="dataInicio"
+      dateFormat="dd/mm/yy"
+      showIcon="true"
+      inputId="dtInicio"
+      class="w-full">
+    </p-calendar>
+  </div>
+
+  <!-- Data fim -->
+  <div class="campo-data">
+    <label class="block mb-1">Fim</label>
+    <p-calendar
+      [(ngModel)]="dataFim"
+      dateFormat="dd/mm/yy"
+      showIcon="true"
+      inputId="dtFim"
+      class="w-full">
+    </p-calendar>
+  </div>
+
+  <button
+    pButton
+    icon="pi pi-search"
+    label="Buscar"
+    (click)="carregar()">
+  </button>
+
+  <button
+    pButton
+    icon="pi pi-times"
+    label="Limpar"
+    class="p-button-text"
+    (click)="limparFiltros()">
+  </button>
+
+  <div class="flex-1"></div>
+
+  <!-- Nova movimentação -->
+  <button
+    pButton
+    label="Nova Movimentação"
+    icon="pi pi-plus"
+    [routerLink]="['/movimentacoes/cadastro']">
+  </button>
+</div>
+
+<!-- Tabela -->
+<div class="card mt-3">
+  <p-table
+    [value]="movimentacoes"
+    [loading]="loading"
+    [tableStyle]="{ 'min-width': '60rem' }"
+    styleClass="p-datatable-sm">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 5rem;">ID</th>
+        <th>Data/Hora</th>
+        <th>Produto</th>
+        <th>Tipo</th>
+        <th style="width: 6rem;">Qtd</th>
+        <th>Observação</th>
+        <th style="width: 8rem;">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-m>
+      <tr>
+        <td>{{ m.id }}</td>
+        <td>{{ m.dataHora | date:'short' }}</td>
+        <td>
+          {{ m.produto?.nome || m.produto?.codigo || '-' }}
+        </td>
+        <td>
+          <span
+            class="tag-tipo"
+            [ngClass]="{
+              'entrada': m.tipo === 'ENTRADA',
+              'saida': m.tipo === 'SAIDA',
+              'ajuste': m.tipo === 'AJUSTE'
+            }">
+            {{ m.tipo }}
+          </span>
+        </td>
+        <td>{{ m.quantidade }}</td>
+        <td>{{ m.observacao || '-' }}</td>
+        <td>
+          <button
+            pButton
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-sm"
+            (click)="excluir(m.id)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">
+          Nenhuma movimentação encontrada. Ajuste os filtros e clique em "Buscar".
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

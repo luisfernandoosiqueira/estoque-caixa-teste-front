@@ -1,0 +1,73 @@
+<!-- Filtros -->
+<div class="card flex align-items-center gap-3 flex-wrap p-3">
+  <p-dropdown
+    [options]="perfis"
+    [(ngModel)]="filtroPerfil"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Perfil"
+    class="w-15rem">
+  </p-dropdown>
+
+  <p-dropdown
+    [options]="opcoesAtivo"
+    [(ngModel)]="filtroAtivo"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Status"
+    class="w-12rem">
+  </p-dropdown>
+
+  <button pButton icon="pi pi-search" label="Buscar" (click)="carregar()"></button>
+
+  <div class="flex-1"></div>
+
+  <button
+    pButton
+    label="Novo Usuário"
+    icon="pi pi-user-plus"
+    [routerLink]="['/usuarios/novo']">
+  </button>
+</div>
+
+<!-- Tabela -->
+<div class="card mt-3">
+  <p-table
+    [value]="usuarios"
+    [tableStyle]="{ 'min-width': '60rem' }"
+    [loading]="loading"
+    styleClass="p-datatable-sm">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:6rem;">ID</th>
+        <th>Nome</th>
+        <th>E-mail</th>
+        <th>Perfil</th>
+        <th>Status</th>
+        <th style="width:18rem;">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-u>
+      <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.nome }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.perfil }}</td>
+        <td>{{ u.ativo ? 'Ativo' : 'Inativo' }}</td>
+        <td class="flex gap-2 flex-wrap">
+          <button pButton label="Editar" icon="pi pi-pencil" size="small" (click)="editar(u.id!)"></button>
+          <button pButton label="Inativar" icon="pi pi-ban" size="small" [disabled]="!u.ativo" (click)="inativar(u.id!)"></button>
+          <button pButton label="Excluir" icon="pi pi-trash" severity="danger" size="small" (click)="excluir(u.id!)"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6">Nenhum usuário encontrado.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

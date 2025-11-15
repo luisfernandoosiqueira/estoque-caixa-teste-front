@@ -1,0 +1,116 @@
+<div class="p-4">
+
+  <!-- Filtros -->
+  <div class="card flex align-items-center gap-3 flex-wrap p-3">
+
+    <!-- Usuário -->
+    <p-dropdown
+      [options]="usuarios"
+      [(ngModel)]="filtroUsuarioId"
+      optionLabel="nome"
+      optionValue="id"
+      placeholder="Filtrar por usuário"
+      [showClear]="true"
+      class="w-18rem">
+    </p-dropdown>
+
+    <!-- Data início -->
+    <p-datepicker
+      [(ngModel)]="filtroInicio"
+      dateFormat="dd/mm/yy"
+      placeholder="Início"
+      showIcon="true"
+      class="w-12rem">
+    </p-datepicker>
+
+    <!-- Data fim -->
+    <p-datepicker
+      [(ngModel)]="filtroFim"
+      dateFormat="dd/mm/yy"
+      placeholder="Fim"
+      showIcon="true"
+      class="w-12rem">
+    </p-datepicker>
+
+    <button
+      pButton
+      icon="pi pi-search"
+      label="Buscar"
+      (click)="buscar()">
+    </button>
+
+    <div class="flex-1"></div>
+
+    <button
+      pButton
+      label="Nova Venda"
+      icon="pi pi-cart-plus"
+      [routerLink]="['/vendas/novo']">
+    </button>
+  </div>
+
+  <!-- Tabela -->
+  <div class="card mt-3">
+    <p-table
+      [value]="vendas"
+      [loading]="loading"
+      styleClass="p-datatable-sm"
+      [tableStyle]="{ 'min-width': '70rem' }">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem;">ID</th>
+          <th>Data/Hora</th>
+          <th>Usuário</th>
+          <th>Qtd Itens</th>
+          <th>Valor Total</th>
+          <th>Recebido</th>
+          <th>Troco</th>
+          <th style="width: 8rem;">Ações</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-v>
+        <tr>
+          <td>{{ v.id }}</td>
+          <td>{{ v.dataHora | date:'short' }}</td>
+          <td>{{ v.usuario?.nome || v.usuario?.email }}</td>
+          <td>{{ qtdItens(v) }}</td>
+          <td>{{ v.valorTotal   | currencyBr }}</td>
+          <td>{{ v.valorRecebido | currencyBr }}</td>
+          <td>{{ v.troco        | currencyBr }}</td>
+          <td>
+            <button
+              pButton
+              icon="pi pi-trash"
+              severity="danger"
+              size="small"
+              (click)="excluir(v.id)">
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8">
+            Nenhuma venda encontrada. Ajuste os filtros e clique em “Buscar”.
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Rodapé com total do período -->
+      <ng-template pTemplate="footer">
+        <tr>
+          <td colspan="4" class="text-right font-bold">
+            Total no período:
+          </td>
+          <td colspan="4" class="font-bold">
+            {{ totalPeriodo | currencyBr }}
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </div>
+</div>

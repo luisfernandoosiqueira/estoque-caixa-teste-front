@@ -1,0 +1,45 @@
+/* src/app/pages/movimentacoes/lista-movimentacao/lista-movimentacao.component.scss */
+
+:host {
+  display: block;
+}
+
+.card {
+  border-radius: 1rem;
+}
+
+.filtros {
+  margin-bottom: 0.5rem;
+}
+
+.campo-data {
+  min-width: 180px;
+}
+
+button[pButton] {
+  font-size: 0.9rem;
+}
+
+/* Tags de tipo de movimentação */
+.tag-tipo {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tag-tipo.entrada {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.tag-tipo.saida {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.tag-tipo.ajuste {
+  background: #e3f2fd;
+  color: #1565c0;
+}

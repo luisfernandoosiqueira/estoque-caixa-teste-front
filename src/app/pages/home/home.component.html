@@ -1,0 +1,22 @@
+<!-- Cabeçalho fixo -->
+<app-header></app-header>
+
+<!-- Conteúdo principal -->
+<div class="p-4">
+  <div class="welcome-card">
+    <h2 class="mb-2">Bem-vindo{{ usuarioNome ? ', ' + usuarioNome : '' }}!</h2>
+    <p class="text-600 mb-4">
+      Use o menu acima para navegar entre os módulos de <b>Produtos</b>,
+      <b>Usuários</b>, <b>Vendas</b> e <b>Movimentações</b>.
+    </p>
+
+    <div class="atualizacao text-sm text-500">
+      <i class="pi pi-clock mr-1"></i>
+      Último acesso registrado:
+      <strong>{{ ultimoAcesso | date:'dd/MM/yyyy HH:mm' }}</strong>
+    </div>
+  </div>
+
+  <!-- Rotas filhas renderizadas aqui -->
+  <router-outlet></router-outlet>
+</div>

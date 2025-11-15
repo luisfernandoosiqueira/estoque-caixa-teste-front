@@ -1,0 +1,85 @@
+<div class="mb-4 p-4">
+  <p-card>
+    <h2>{{ id ? 'Editar Usuário' : 'Cadastro de Usuário' }}</h2>
+
+    <div class="grid mt-4">
+      <!-- Nome -->
+      <div class="col-12 md:col-6">
+        <label for="nome" class="block mb-2">Nome</label>
+        <input
+          id="nome"
+          type="text"
+          pInputText
+          class="w-full"
+          [(ngModel)]="nome"
+          (ngModelChange)="marcarAlterado()" />
+      </div>
+
+      <!-- E-mail -->
+      <div class="col-12 md:col-6">
+        <label for="email" class="block mb-2">E-mail</label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          class="w-full"
+          [(ngModel)]="email"
+          (ngModelChange)="marcarAlterado()" />
+      </div>
+
+      <!-- Senha (somente no cadastro) -->
+      <div class="col-12 md:col-6" *ngIf="!id">
+        <label for="senha" class="block mb-2">Senha</label>
+        <input
+          id="senha"
+          type="password"
+          pInputText
+          class="w-full"
+          [(ngModel)]="senha"
+          (ngModelChange)="marcarAlterado()" />
+      </div>
+
+      <!-- Perfil -->
+      <div class="col-12 md:col-6">
+        <label for="perfil" class="block mb-2">Perfil</label>
+        <p-dropdown
+          inputId="perfil"
+          [options]="perfis"
+          [(ngModel)]="perfil"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione um perfil"
+          class="w-full"
+          (onChange)="marcarAlterado()">
+        </p-dropdown>
+      </div>
+
+      <!-- Ativo -->
+      <div class="col-12 mt-3 flex align-items-center gap-2">
+        <label for="ativo" class="mr-2">Ativo?</label>
+        <input
+          id="ativo"
+          type="checkbox"
+          [(ngModel)]="ativo"
+          (change)="marcarAlterado()" />
+      </div>
+    </div>
+
+    <!-- Botões -->
+    <div class="flex gap-2 mt-4 flex-wrap">
+      <button
+        pButton
+        [label]="labelSalvar"
+        icon="pi pi-save"
+        (click)="salvar()">
+      </button>
+
+      <button
+        pButton
+        label="Cancelar"
+        class="p-button-text"
+        (click)="cancelar()">
+      </button>
+    </div>
+  </p-card>
+</div>

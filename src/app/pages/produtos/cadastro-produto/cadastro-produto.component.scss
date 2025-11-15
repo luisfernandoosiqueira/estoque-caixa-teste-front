@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+p-card {
+  border-radius: 1rem;
+}
+
+h2 {
+  margin: 0;
+  color: var(--text-color);
+}
+
+label {
+  font-weight: 500;
+}
+
+input[pInputText],
+p-dropdown {
+  font-size: 0.95rem;
+}
+
+button[pButton] {
+  min-width: 120px;
+}
