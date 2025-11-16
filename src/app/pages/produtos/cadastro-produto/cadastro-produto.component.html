@@ -2,7 +2,7 @@
   <p-card>
     <h2>{{ id ? 'Editar Produto' : 'Cadastro de Produto' }}</h2>
 
-    <div class="grid mt-4">
+    <form class="grid mt-4" [formGroup]="form" (ngSubmit)="salvar()">
       <!-- Código -->
       <div class="col-12 md:col-4">
         <label for="codigo" class="block mb-2">Código</label>
@@ -11,8 +11,7 @@
           type="text"
           pInputText
           class="w-full"
-          [(ngModel)]="codigo"
-          (ngModelChange)="marcarAlterado()" />
+          formControlName="codigo" />
       </div>
 
       <!-- Nome -->
@@ -23,8 +22,7 @@
           type="text"
           pInputText
           class="w-full"
-          [(ngModel)]="nome"
-          (ngModelChange)="marcarAlterado()" />
+          formControlName="nome" />
       </div>
 
       <!-- Categoria -->
@@ -33,27 +31,27 @@
         <p-dropdown
           inputId="categoria"
           [options]="categorias"
-          [(ngModel)]="categoria"
+          formControlName="categoria"
           optionLabel="label"
           optionValue="value"
           placeholder="Selecione uma categoria"
           [editable]="true"
-          class="w-full"
-          (onChange)="marcarAlterado()"
-          (onBlur)="marcarAlterado()">
+          class="w-full">
         </p-dropdown>
       </div>
 
       <!-- Preço Unitário -->
       <div class="col-12 md:col-3">
-        <label for="precoUnitario" class="block mb-2">Preço Unitário (R$)</label>
+        <label for="precoUnitario" class="block mb-2">
+          Preço Unitário (R$)
+          <small class="text-600">(pode ser 0)</small>
+        </label>
         <input
           id="precoUnitario"
           type="number"
           pInputText
           class="w-full"
-          [(ngModel)]="precoUnitario"
-          (ngModelChange)="marcarAlterado()" />
+          formControlName="precoUnitario" />
       </div>
 
       <!-- Quantidade em Estoque -->
@@ -64,8 +62,7 @@
           type="number"
           pInputText
           class="w-full"
-          [(ngModel)]="quantidadeEstoque"
-          (ngModelChange)="marcarAlterado()" />
+          formControlName="quantidadeEstoque" />
       </div>
 
       <!-- Ativo -->
@@ -74,26 +71,26 @@
         <input
           id="ativo"
           type="checkbox"
-          [(ngModel)]="ativo"
-          (change)="marcarAlterado()" />
+          formControlName="ativo" />
       </div>
-    </div>
 
-    <!-- Botões -->
-    <div class="flex gap-2 mt-4 flex-wrap">
-      <button
-        pButton
-        [label]="labelSalvar"
-        icon="pi pi-save"
-        (click)="salvar()">
-      </button>
+      <!-- Botões -->
+      <div class="col-12 flex gap-2 mt-4 flex-wrap">
+        <button
+          pButton
+          type="submit"
+          [label]="labelSalvar"
+          icon="pi pi-save">
+        </button>
 
-      <button
-        pButton
-        label="Cancelar"
-        class="p-button-text"
-        (click)="cancelar()">
-      </button>
-    </div>
+        <button
+          pButton
+          type="button"
+          label="Cancelar"
+          class="p-button-text"
+          (click)="cancelar()">
+        </button>
+      </div>
+    </form>
   </p-card>
 </div>

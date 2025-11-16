@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,9 +18,13 @@ import { CanComponentDeactivate } from '../../../core/auth/unsaved-changes.guard
   selector: 'app-cadastro-usuario',
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
-    InputTextModule, ButtonModule,
-    CardModule, DropdownModule, CheckboxModule
+    CommonModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    ButtonModule,
+    CardModule,
+    DropdownModule,
+    CheckboxModule,
   ],
   templateUrl: './cadastro-usuario.component.html',
   styleUrls: ['./cadastro-usuario.component.scss'],
@@ -30,26 +34,22 @@ export class CadastroUsuarioComponent implements OnInit, CanComponentDeactivate 
   private route = inject(ActivatedRoute);
   private usuarioApi = inject(UsuariosService);
   private alert = inject(AlertService);
+  private fb = inject(FormBuilder);
 
   id?: number;
   labelSalvar = 'Salvar';
+  form!: FormGroup;
   formAlterado = false;
   formOriginal = '';
 
-  // formulário
-  nome = '';
-  email = '';
-  senha = '';
-  perfil: Perfil | '' = '';   // ✅ tipagem ajustada
-  ativo = true;
-
   perfis = [
-    { label: 'Administrador', value: 'ADMIN' },
-    { label: 'Operador de Caixa', value: 'CAIXA' },
-    { label: 'Gerente', value: 'GERENTE' },
+    { label: 'Administrador', value: 'ADMINISTRADOR' as Perfil },
+    { label: 'Operador de Caixa', value: 'OPERADOR' as Perfil },
   ];
 
   ngOnInit(): void {
+    this.criarForm();
+
     const param = this.route.snapshot.paramMap.get('id');
     if (param) {
       this.id = Number(param);
@@ -58,20 +58,34 @@ export class CadastroUsuarioComponent implements OnInit, CanComponentDeactivate 
     } else {
       this.salvarEstadoInicial();
     }
+
+    this.form.valueChanges.subscribe(() => {
+      this.formAlterado = true;
+    });
   }
 
-  marcarAlterado(): void {
-    this.formAlterado = true;
+  private criarForm(): void {
+    this.form = this.fb.group({
+      nomeCompleto: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      senha: [''], // tratada manualmente (obrigatória só no cadastro)
+      perfil: ['', Validators.required],
+      ativo: [true],
+    });
   }
 
   private carregarUsuario(id: number): void {
     this.usuarioApi.findById(id).subscribe({
       next: (u: Usuario) => {
-        this.nome = u.nome ?? '';
-        this.email = u.email ?? '';
-        this.perfil = u.perfil ?? '';   // compatível com Perfil | ''
-        this.ativo = u.ativo ?? true;
+        this.form.patchValue({
+          nomeCompleto: u.nomeCompleto ?? '',
+          email: u.email ?? '',
+          perfil: u.perfil ?? '',
+          ativo: u.ativo ?? true,
+          senha: '',
+        });
         this.salvarEstadoInicial();
+        this.formAlterado = false;
       },
       error: () => {
         this.alert.error('Erro', 'Não foi possível carregar o usuário.');
@@ -81,36 +95,100 @@ export class CadastroUsuarioComponent implements OnInit, CanComponentDeactivate 
   }
 
   salvar(): void {
-    const nome = this.nome.trim();
-    const email = this.email.trim();
-    const senha = this.senha.trim();
-    const perfil = this.perfil as Perfil;   // conversão literal
+    const raw = this.form.getRawValue();
+    const isEdicao = !!this.id;
 
-    if (!nome || !email || (!this.id && !senha) || !perfil) {
-      this.alert.warn('Campos obrigatórios', 'Preencha todos os campos corretamente.');
+    const nomeCompleto = (raw.nomeCompleto ?? '').trim();
+    const email = (raw.email ?? '').trim();
+    const senha = (raw.senha ?? '').trim();
+    const perfil = raw.perfil as Perfil;
+    const ativo = !!raw.ativo;
+
+    // Nome completo
+    if (!nomeCompleto) {
+      this.form.get('nomeCompleto')?.markAsTouched();
+      this.alert.warn('Nome obrigatório', 'Informe o nome completo do usuário.');
+      return;
+    }
+    if (nomeCompleto.length < 3) {
+      this.form.get('nomeCompleto')?.markAsTouched();
+      this.alert.warn('Nome inválido', 'O nome completo deve ter pelo menos 3 caracteres.');
       return;
     }
 
+    // E-mail
+    if (!email) {
+      this.form.get('email')?.markAsTouched();
+      this.alert.warn('E-mail obrigatório', 'Informe o e-mail do usuário.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      this.form.get('email')?.markAsTouched();
+      this.alert.warn('E-mail inválido', 'Informe um e-mail válido (ex: usuario@empresa.com).');
+      return;
+    }
+
+    // Perfil
+    if (!perfil || (perfil !== 'ADMINISTRADOR' && perfil !== 'OPERADOR')) {
+      this.form.get('perfil')?.markAsTouched();
+      this.alert.warn('Perfil obrigatório', 'Selecione um perfil válido para o usuário.');
+      return;
+    }
+
+    // Senha: obrigatória no cadastro, opcional na edição
+    if (!isEdicao) {
+      if (!senha) {
+        this.form.get('senha')?.markAsTouched();
+        this.alert.warn('Senha obrigatória', 'Informe a senha do usuário.');
+        return;
+      }
+      if (senha.length < 8) {
+        this.form.get('senha')?.markAsTouched();
+        this.alert.warn('Senha fraca', 'A senha deve conter pelo menos 8 caracteres.');
+        return;
+      }
+    } else {
+      if (senha && senha.length < 8) {
+        this.form.get('senha')?.markAsTouched();
+        this.alert.warn('Senha fraca', 'A nova senha deve conter pelo menos 8 caracteres.');
+        return;
+      }
+    }
+
     const body: Usuario = {
-      nome,
+      nomeCompleto,
       email,
-      senha: this.id ? undefined : senha,
       perfil,
-      ativo: this.ativo,
+      ativo,
     };
+
+    if (!isEdicao) {
+      body.senha = senha;
+    } else if (senha) {
+      body.senha = senha;
+    }
 
     const req$ = this.id
       ? this.usuarioApi.update(this.id, body)
       : this.usuarioApi.create(body);
 
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+    }
+
     req$.subscribe({
       next: () => {
         this.alert.success('Sucesso', 'Usuário salvo com sucesso!');
-        this.formAlterado = false;
         this.salvarEstadoInicial();
+        this.formAlterado = false;
         this.router.navigate(['/usuarios']);
       },
-      error: () => this.alert.error('Erro', 'Não foi possível salvar o usuário.'),
+      error: (err) => {
+        const msg =
+          err?.error?.mensagem || 'Não foi possível salvar o usuário. Verifique os dados.';
+        this.alert.error('Erro', msg);
+      },
     });
   }
 
@@ -119,24 +197,13 @@ export class CadastroUsuarioComponent implements OnInit, CanComponentDeactivate 
   }
 
   private salvarEstadoInicial(): void {
-    const estado = {
-      nome: this.nome,
-      email: this.email,
-      perfil: this.perfil,
-      ativo: this.ativo,
-    };
-    this.formOriginal = JSON.stringify(estado);
+    this.formOriginal = JSON.stringify(this.form.getRawValue());
   }
 
   async podeSair(): Promise<boolean> {
     if (this.formAlterado) {
-      const estadoAtual = {
-        nome: this.nome,
-        email: this.email,
-        perfil: this.perfil,
-        ativo: this.ativo,
-      };
-      const alterado = this.formOriginal !== JSON.stringify(estadoAtual);
+      const atual = JSON.stringify(this.form.getRawValue());
+      const alterado = this.formOriginal !== atual;
       if (alterado) {
         const confirm = await this.alert.confirm(
           'Existem alterações não salvas.',

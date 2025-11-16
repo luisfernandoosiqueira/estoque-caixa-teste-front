@@ -1,6 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators
+} from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { DropdownModule } from 'primeng/dropdown';
@@ -16,7 +21,10 @@ import { UsuariosService } from '../../../core/services/usuarios.service';
 import { Produto } from '../../../core/models/produto.model';
 import { Usuario } from '../../../core/models/usuario.model';
 import { ItemVenda } from '../../../core/models/item-venda.model';
-import { VendaRequest } from '../../../core/models/venda.model';
+import {
+  VendaRequest,
+  ItemVendaRequest
+} from '../../../core/models/venda.model';
 
 import { AlertService } from '../../../core/alert/alert.service';
 import { CanComponentDeactivate } from '../../../core/auth/unsaved-changes.guard';
@@ -26,53 +34,79 @@ import { CanComponentDeactivate } from '../../../core/auth/unsaved-changes.guard
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     DropdownModule,
     InputNumberModule,
     ButtonModule,
     CardModule,
-    TableModule
+    TableModule,
   ],
   templateUrl: './cadastro-venda.component.html',
-  styleUrls: ['./cadastro-venda.component.scss']
+  styleUrls: ['./cadastro-venda.component.scss'],
 })
 export class CadastroVendaComponent implements OnInit, CanComponentDeactivate {
-
   private produtosApi = inject(ProdutosService);
   private vendasApi = inject(VendasService);
   private usuariosApi = inject(UsuariosService);
   private alert = inject(AlertService);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
+
+  // formulário principal
+  vendaForm!: FormGroup;
 
   produtos: Produto[] = [];
   usuarios: Usuario[] = [];
 
-  usuarioId?: number;
-  valorRecebido: number | null = null;
-
+  // itens da venda
   itens: ItemVenda[] = [];
-  itemSelecionado?: Produto;
-  quantidade = 1;
 
   valorTotal = 0;
   troco = 0;
 
   private formAlterado = false;
 
-  ngOnInit(): void {
-    this.carregarProdutos();
-    this.carregarUsuarios();
+  // getters de apoio
+
+  get itemGroup(): FormGroup {
+    return this.vendaForm.get('item') as FormGroup;
   }
 
-  marcarAlterado(): void {
-    this.formAlterado = true;
+  get produtoSelecionado(): Produto | null {
+    return (this.itemGroup.get('produtoSelecionado')?.value as Produto) ?? null;
+  }
+
+  get quantidade(): number {
+    return (this.itemGroup.get('quantidadeItem')?.value as number) ?? 0;
+  }
+
+  ngOnInit(): void {
+    this.criarForm();
+    this.carregarProdutos();
+    this.carregarUsuarios();
+
+    this.vendaForm.valueChanges.subscribe(() => {
+      this.formAlterado = true;
+      this.recalcular();
+    });
+  }
+
+  private criarForm(): void {
+    this.vendaForm = this.fb.group({
+      usuarioId: [null, Validators.required],
+      valorRecebido: [null, [Validators.required, Validators.min(0.01)]],
+      item: this.fb.group({
+        produtoSelecionado: [null],
+        quantidadeItem: [1],
+      }),
+    });
   }
 
   private carregarProdutos(): void {
     this.produtosApi.findAll().subscribe({
       next: (lista) => (this.produtos = lista),
       error: () =>
-        this.alert.error('Erro', 'Não foi possível carregar os produtos.')
+        this.alert.error('Erro', 'Não foi possível carregar os produtos.'),
     });
   }
 
@@ -80,48 +114,65 @@ export class CadastroVendaComponent implements OnInit, CanComponentDeactivate {
     this.usuariosApi.findAll().subscribe({
       next: (lista) => (this.usuarios = lista),
       error: () =>
-        this.alert.error('Erro', 'Não foi possível carregar os usuários.')
+        this.alert.error('Erro', 'Não foi possível carregar os usuários.'),
     });
   }
 
   adicionarItem(): void {
-    if (!this.itemSelecionado) {
+    const p = this.produtoSelecionado;
+    const qtd = this.quantidade;
+
+    if (!p) {
       this.alert.warn('Atenção', 'Selecione um produto.');
       return;
     }
 
-    if (!this.quantidade || this.quantidade <= 0) {
+    if (!qtd || qtd <= 0) {
       this.alert.warn('Atenção', 'Quantidade inválida.');
       return;
     }
 
-    const p = this.itemSelecionado;
     if (!p.id) {
       this.alert.error('Erro', 'Produto sem ID válido.');
       return;
     }
 
+    if (p.quantidadeEstoque != null && qtd > p.quantidadeEstoque) {
+      this.alert.warn(
+        'Estoque insuficiente',
+        `Quantidade solicitada (${qtd}) é maior que o estoque disponível (${p.quantidadeEstoque}).`
+      );
+      return;
+    }
+
     const preco = p.precoUnitario ?? 0;
-    const qtd = this.quantidade;
     const subtotal = preco * qtd;
 
     const item: ItemVenda = {
       produto: p,
-      produtoId: p.id, // agora existe na interface
+      produtoId: p.id,
       quantidade: qtd,
       precoUnitario: preco,
-      subtotal
+      subtotal,
     };
 
     this.itens.push(item);
+
+    this.itemGroup.patchValue({
+      produtoSelecionado: null,
+      quantidadeItem: 1,
+    });
+    this.itemGroup.markAsPristine();
+    this.itemGroup.markAsUntouched();
+
     this.recalcular();
-    this.marcarAlterado();
+    this.formAlterado = true;
   }
 
   removerItem(index: number): void {
     this.itens.splice(index, 1);
     this.recalcular();
-    this.marcarAlterado();
+    this.formAlterado = true;
   }
 
   recalcular(): void {
@@ -129,51 +180,85 @@ export class CadastroVendaComponent implements OnInit, CanComponentDeactivate {
       (acc, i) => acc + (i.subtotal ?? 0),
       0
     );
-    const recebido = this.valorRecebido ?? 0;
+
+    const recebido =
+      (this.vendaForm.get('valorRecebido')?.value as number | null) ?? 0;
+
     this.troco = recebido - this.valorTotal;
   }
 
   salvar(): void {
-    if (!this.usuarioId) {
-      this.alert.warn('Campos obrigatórios', 'Selecione um usuário.');
+    if (this.vendaForm.invalid) {
+      // marca campos obrigatórios
+      this.vendaForm.get('usuarioId')?.markAsTouched();
+      this.vendaForm.get('valorRecebido')?.markAsTouched();
+
+      this.alert.warn(
+        'Campos obrigatórios',
+        'Preencha usuário e valor recebido corretamente.'
+      );
       return;
     }
 
     if (!this.itens.length) {
-      this.alert.warn('Campos obrigatórios', 'Adicione pelo menos um item.');
+      this.alert.warn(
+        'Campos obrigatórios',
+        'Adicione pelo menos um item.'
+      );
       return;
     }
 
-    const recebido = this.valorRecebido ?? 0;
+    const usuarioId = this.vendaForm.get('usuarioId')?.value as number | null;
+    const recebido =
+      (this.vendaForm.get('valorRecebido')?.value as number | null) ?? 0;
+
+    if (!usuarioId) {
+      this.alert.warn('Campos obrigatórios', 'Selecione um usuário.');
+      return;
+    }
+
     if (recebido <= 0) {
-      this.alert.warn('Campos obrigatórios', 'Informe o valor recebido.');
+      this.alert.warn(
+        'Campos obrigatórios',
+        'Informe o valor recebido.'
+      );
       return;
     }
 
     if (recebido < this.valorTotal) {
-      this.alert.warn('Valor insuficiente', 'Valor recebido é menor que o total da venda.');
+      this.alert.warn(
+        'Valor insuficiente',
+        'Valor recebido é menor que o total da venda.'
+      );
       return;
     }
 
+    const itensRequest: ItemVendaRequest[] = this.itens.map((i) => ({
+      produtoId: i.produtoId ?? i.produto?.id!,
+      quantidade: i.quantidade,
+      precoUnitario: i.precoUnitario,
+      subtotal: i.subtotal,
+    }));
+
     const body: VendaRequest = {
-      usuarioId: this.usuarioId,
+      usuarioId,
       valorRecebido: recebido,
-      itens: this.itens.map(i => ({
-        produtoId: i.produtoId ?? i.produto?.id!, // garante envio do ID
-        quantidade: i.quantidade,
-        precoUnitario: i.precoUnitario,
-        subtotal: i.subtotal
-      }))
+      itens: itensRequest,
     };
 
     this.vendasApi.create(body).subscribe({
       next: () => {
         this.alert.success('Sucesso', 'Venda registrada com sucesso!');
         this.formAlterado = false;
+        this.vendaForm.markAsPristine();
+        this.vendaForm.markAsUntouched();
         this.router.navigate(['/vendas']);
       },
       error: () =>
-        this.alert.error('Erro', 'Não foi possível registrar a venda.')
+        this.alert.error(
+          'Erro',
+          'Não foi possível registrar a venda.'
+        ),
     });
   }
 
@@ -182,7 +267,7 @@ export class CadastroVendaComponent implements OnInit, CanComponentDeactivate {
   }
 
   async podeSair(): Promise<boolean> {
-    if (!this.formAlterado) return true;
+    if (!this.formAlterado && !this.vendaForm.dirty) return true;
 
     const confirm = await this.alert.confirm(
       'Alterações não salvas',

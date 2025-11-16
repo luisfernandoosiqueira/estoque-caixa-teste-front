@@ -1,39 +1,48 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
+
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { CardModule } from 'primeng/card';
+
 import { AuthService } from '../../core/auth/auth.service';
 import { AlertService } from '../../core/alert/alert.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, CardModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, CardModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  email = '';
-  senha = '';
+  loginForm!: FormGroup;
+  loading = false;
 
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private alert = inject(AlertService);
   private auth = inject(AuthService);
+  private fb = inject(FormBuilder);
 
   private redirectUrl: string | null = null;
 
   ngOnInit(): void {
-    // Se veio de uma rota protegida, mostra aviso
+    this.criarForm();
     this.mostrarAlertaSeNaoAutenticado(this.route.snapshot.queryParamMap);
 
-    // Atualiza caso haja mudança de query params
     this.route.queryParamMap.subscribe((p) => {
       this.redirectUrl = p.get('redirect');
       this.mostrarAlertaSeNaoAutenticado(p);
+    });
+  }
+
+  private criarForm(): void {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      senha: ['', [Validators.required, Validators.minLength(3)]],
     });
   }
 
@@ -47,19 +56,28 @@ export class LoginComponent implements OnInit {
   }
 
   logar(): void {
-    if (!this.email.trim() || !this.senha.trim()) {
-      this.alert.warn('Campos obrigatórios', 'Preencha e-mail e senha.');
+    if (!this.loginForm.valid) {
+      this.loginForm.markAllAsTouched();
+      this.alert.warn('Campos obrigatórios', 'Preencha e-mail e senha corretamente.');
       return;
     }
 
-    const sucesso = this.auth.login(this.email.trim(), this.senha.trim());
+    const { email, senha } = this.loginForm.value;
 
-    if (sucesso) {
-      this.alert.success('Bem-vindo!', 'Login realizado com sucesso.');
-      const destino = this.redirectUrl || '/home';
-      this.router.navigateByUrl(destino);
-    } else {
-      this.alert.error('Erro', 'E-mail ou senha inválidos.');
-    }
+    this.loading = true;
+
+    this.auth.login(email, senha).subscribe({
+      next: (usuario) => {
+        this.loading = false;
+        this.alert.success('Bem-vindo!', `Login realizado com sucesso, ${usuario.nomeCompleto}.`);
+        const destino = this.redirectUrl || '/home';
+        this.router.navigateByUrl(destino);
+      },
+      error: (err) => {
+        this.loading = false;
+        const mensagem = err?.error?.mensagem || 'E-mail ou senha inválidos.';
+        this.alert.error('Erro', mensagem);
+      },
+    });
   }
 }

@@ -7,7 +7,7 @@
     <p-dropdown
       [options]="usuarios"
       [(ngModel)]="filtroUsuarioId"
-      optionLabel="nome"
+      optionLabel="nomeCompleto"
       optionValue="id"
       placeholder="Filtrar por usuário"
       [showClear]="true"
@@ -74,11 +74,11 @@
         <tr>
           <td>{{ v.id }}</td>
           <td>{{ v.dataHora | date:'short' }}</td>
-          <td>{{ v.usuario?.nome || v.usuario?.email }}</td>
+          <td>{{ v.usuario?.nomeCompleto || v.usuario?.email }}</td>
           <td>{{ qtdItens(v) }}</td>
-          <td>{{ v.valorTotal   | currencyBr }}</td>
+          <td>{{ v.valorTotal    | currencyBr }}</td>
           <td>{{ v.valorRecebido | currencyBr }}</td>
-          <td>{{ v.troco        | currencyBr }}</td>
+          <td>{{ v.troco         | currencyBr }}</td>
           <td>
             <button
               pButton

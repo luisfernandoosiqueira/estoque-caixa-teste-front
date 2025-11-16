@@ -10,15 +10,15 @@
   <!-- Usuário + Sair -->
   <ng-template pTemplate="end">
     <div class="flex align-items-center gap-3 px-3">
-      <!-- E-mail do usuário logado -->
-      <div class="flex align-items-center gap-2 text-600">
-        <i class="pi pi-user"></i>
-        <span class="truncate max-w-15rem md:max-w-20rem" title="{{ userEmail }}">
+      <div class="flex flex-column align-items-end text-600 text-right">
+        <span class="font-semibold">{{ userNome }}</span>
+        <small>
+          {{ perfilLabel }}
+          <span *ngIf="perfilLabel && userEmail">·</span>
           {{ userEmail }}
-        </span>
+        </small>
       </div>
 
-      <!-- Botão Sair -->
       <button
         pButton
         type="button"

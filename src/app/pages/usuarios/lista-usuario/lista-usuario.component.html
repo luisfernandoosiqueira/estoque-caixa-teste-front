@@ -52,14 +52,36 @@
     <ng-template pTemplate="body" let-u>
       <tr>
         <td>{{ u.id }}</td>
-        <td>{{ u.nome }}</td>
+        <td>{{ u.nomeCompleto }}</td>
         <td>{{ u.email }}</td>
         <td>{{ u.perfil }}</td>
         <td>{{ u.ativo ? 'Ativo' : 'Inativo' }}</td>
         <td class="flex gap-2 flex-wrap">
-          <button pButton label="Editar" icon="pi pi-pencil" size="small" (click)="editar(u.id!)"></button>
-          <button pButton label="Inativar" icon="pi pi-ban" size="small" [disabled]="!u.ativo" (click)="inativar(u.id!)"></button>
-          <button pButton label="Excluir" icon="pi pi-trash" severity="danger" size="small" (click)="excluir(u.id!)"></button>
+          <button
+            pButton
+            label="Editar"
+            icon="pi pi-pencil"
+            size="small"
+            (click)="editar(u.id!)">
+          </button>
+
+          <button
+            pButton
+            label="Inativar"
+            icon="pi pi-ban"
+            size="small"
+            [disabled]="!u.ativo"
+            (click)="inativar(u.id!)">
+          </button>
+
+          <button
+            pButton
+            label="Excluir"
+            icon="pi pi-trash"
+            severity="danger"
+            size="small"
+            (click)="excluir(u.id!)">
+          </button>
         </td>
       </tr>
     </ng-template>

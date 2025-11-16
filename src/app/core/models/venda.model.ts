@@ -2,10 +2,18 @@
 import { Usuario } from './usuario.model';
 import { ItemVenda } from './item-venda.model';
 
+// Item da venda enviado no POST (ItemVendaRequestDTO)
+export interface ItemVendaRequest {
+  produtoId: number;
+  quantidade: number;
+  precoUnitario: number;
+  subtotal: number;
+}
+
 // Resposta da API (VendaResponseDTO)
 export interface Venda {
   id?: number;
-  dataHora?: string;
+  dataHora?: string;          
   valorTotal: number;
   valorRecebido: number;
   troco: number;
@@ -17,10 +25,5 @@ export interface Venda {
 export interface VendaRequest {
   usuarioId: number;
   valorRecebido: number;
-  itens: {
-    produtoId: number;
-    quantidade: number;
-    precoUnitario: number;
-    subtotal: number;
-  }[];
+  itens: ItemVendaRequest[];
 }

@@ -25,69 +25,88 @@ import { CadastroMovimentacaoComponent } from './pages/movimentacoes/cadastro-mo
 // Guards
 import { authGuard } from './core/auth/auth.guard';
 import { unsavedChangesGuard } from './core/auth/unsaved-changes.guard';
+import { adminGuard } from './core/auth/admin.guard';
+import { caixaGuard } from './core/auth/caixa.guard';
 
 export const routes: Routes = [
-  // redireciona raiz para login
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  // login público
   { path: 'login', component: LoginComponent },
 
-  // layout autenticado (Home = header + <router-outlet>)
   {
     path: '',
     component: HomeComponent,
     canActivate: [authGuard],
     canActivateChild: [authGuard],
     children: [
-      // início / dashboard
       { path: 'dashboard', component: DashboardComponent },
       { path: 'home', redirectTo: 'dashboard', pathMatch: 'full' },
 
-      // PRODUTOS
-      { path: 'produtos', component: ListaProdutoComponent },
+      // PRODUTOS (somente ADMIN)
+      {
+        path: 'produtos',
+        component: ListaProdutoComponent,
+        canActivate: [adminGuard]
+      },
       {
         path: 'produtos/novo',
         component: CadastroProdutoComponent,
-        canDeactivate: [unsavedChangesGuard],
+        canActivate: [adminGuard],
+        canDeactivate: [unsavedChangesGuard]
       },
       {
         path: 'produtos/editar/:id',
         component: CadastroProdutoComponent,
-        canDeactivate: [unsavedChangesGuard],
+        canActivate: [adminGuard],
+        canDeactivate: [unsavedChangesGuard]
       },
 
-      // USUÁRIOS
-      { path: 'usuarios', component: ListaUsuarioComponent },
+      // USUÁRIOS (somente ADMIN)
+      {
+        path: 'usuarios',
+        component: ListaUsuarioComponent,
+        canActivate: [adminGuard]
+      },
       {
         path: 'usuarios/novo',
         component: CadastroUsuarioComponent,
-        canDeactivate: [unsavedChangesGuard],
+        canActivate: [adminGuard],
+        canDeactivate: [unsavedChangesGuard]
       },
       {
         path: 'usuarios/editar/:id',
         component: CadastroUsuarioComponent,
-        canDeactivate: [unsavedChangesGuard],
+        canActivate: [adminGuard],
+        canDeactivate: [unsavedChangesGuard]
       },
 
-      // VENDAS
-      { path: 'vendas', component: ListaVendaComponent },
+      // VENDAS / CAIXA (ADMIN + OPERADOR)
+      {
+        path: 'vendas',
+        component: ListaVendaComponent,
+        canActivate: [caixaGuard]
+      },
       {
         path: 'vendas/novo',
         component: CadastroVendaComponent,
-        canDeactivate: [unsavedChangesGuard],
+        canActivate: [caixaGuard],
+        canDeactivate: [unsavedChangesGuard]
       },
 
-      // MOVIMENTAÇÕES DE ESTOQUE
-      { path: 'movimentacoes', component: ListaMovimentacaoComponent },
+      // MOVIMENTAÇÕES DE ESTOQUE (somente ADMIN)
+      {
+        path: 'movimentacoes',
+        component: ListaMovimentacaoComponent,
+        canActivate: [adminGuard]
+      },
       {
         path: 'movimentacoes/cadastro',
         component: CadastroMovimentacaoComponent,
-        canDeactivate: [unsavedChangesGuard],
-      },
-    ],
+        canActivate: [adminGuard],
+        canDeactivate: [unsavedChangesGuard]
+      }
+    ]
   },
 
-  // rota coringa
-  { path: '**', redirectTo: 'login' },
+  { path: '**', redirectTo: 'login' }
 ];

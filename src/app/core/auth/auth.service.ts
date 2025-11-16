@@ -1,7 +1,16 @@
+// src/app/core/auth/auth.service.ts
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+
+export interface LoginResponse {
+  nomeCompleto: string;
+  email: string;
+  perfil: 'ADMINISTRADOR' | 'OPERADOR';
+}
 
 export interface UsuarioLogado {
-  nome: string;
+  nomeCompleto: string;
   email: string;
   perfil: 'ADMINISTRADOR' | 'OPERADOR';
 }
@@ -9,21 +18,24 @@ export interface UsuarioLogado {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly STORAGE_KEY = 'usuarioLogado';
+  private readonly LOGIN_URL = '/api/login';
 
-  login(email: string, senha: string): boolean {
-    if (email === 'admin@empresa.com' && senha === 'admin') {
-      const usuario: UsuarioLogado = { nome: 'Administrador', email, perfil: 'ADMINISTRADOR' };
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(usuario));
-      return true;
-    }
+  constructor(private http: HttpClient) {}
 
-    if (email === 'operador@empresa.com' && senha === 'operador') {
-      const usuario: UsuarioLogado = { nome: 'Operador', email, perfil: 'OPERADOR' };
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(usuario));
-      return true;
-    }
-
-    return false;
+  login(email: string, senha: string): Observable<UsuarioLogado> {
+    return this.http
+      .post<LoginResponse>(this.LOGIN_URL, { email, senha })
+      .pipe(
+        map((res) => {
+          const usuario: UsuarioLogado = {
+            nomeCompleto: res.nomeCompleto,
+            email: res.email,
+            perfil: res.perfil,
+          };
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(usuario));
+          return usuario;
+        })
+      );
   }
 
   logout(): void {
@@ -44,10 +56,10 @@ export class AuthService {
   }
 
   getUserNome(): string | null {
-    return this.getUsuario()?.nome ?? null;
+    return this.getUsuario()?.nomeCompleto ?? null;
   }
 
-  getUserPerfil(): string | null {
+  getUserPerfil(): 'ADMINISTRADOR' | 'OPERADOR' | null {
     return this.getUsuario()?.perfil ?? null;
   }
 

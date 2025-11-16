@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     const usuario = this.auth.getUsuario();
-    this.usuarioNome = usuario?.nome ?? '';
-    // se quiser, poderia buscar ultimo acesso de algum lugar depois
+    this.usuarioNome = usuario?.nomeCompleto ?? '';
+    // futuramente: carregar último acesso real do back, se houver
   }
 }

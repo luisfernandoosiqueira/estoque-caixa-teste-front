@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { InputTextModule } from 'primeng/inputtext';
@@ -17,7 +17,15 @@ import { CanComponentDeactivate } from '../../../core/auth/unsaved-changes.guard
 @Component({
   selector: 'app-cadastro-produto',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, CardModule, DropdownModule, CheckboxModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    ButtonModule,
+    CardModule,
+    DropdownModule,
+    CheckboxModule,
+  ],
   templateUrl: './cadastro-produto.component.html',
   styleUrls: ['./cadastro-produto.component.scss'],
 })
@@ -26,21 +34,14 @@ export class CadastroProdutoComponent implements OnInit, CanComponentDeactivate 
   private route = inject(ActivatedRoute);
   private produtoApi = inject(ProdutosService);
   private alert = inject(AlertService);
+  private fb = inject(FormBuilder);
 
   id?: number;
   labelSalvar = 'Salvar';
+  form!: FormGroup;
   formAlterado = false;
   formOriginal = '';
 
-  // formulário
-  codigo = '';
-  nome = '';
-  categoria = '';
-  precoUnitario: number | null = null;
-  quantidadeEstoque: number | null = null;
-  ativo = true;
-
-  // opções fixas de categoria
   categorias = [
     { label: 'Informática', value: 'Informática' },
     { label: 'Periféricos', value: 'Periféricos' },
@@ -49,6 +50,8 @@ export class CadastroProdutoComponent implements OnInit, CanComponentDeactivate 
   ];
 
   ngOnInit(): void {
+    this.criarForm();
+
     const param = this.route.snapshot.paramMap.get('id');
     if (param) {
       this.id = Number(param);
@@ -57,22 +60,36 @@ export class CadastroProdutoComponent implements OnInit, CanComponentDeactivate 
     } else {
       this.salvarEstadoInicial();
     }
+
+    this.form.valueChanges.subscribe(() => {
+      this.formAlterado = true;
+    });
   }
 
-  marcarAlterado(): void {
-    this.formAlterado = true;
+  private criarForm(): void {
+    this.form = this.fb.group({
+      codigo: ['', Validators.required],
+      nome: ['', Validators.required],
+      categoria: ['', Validators.required],
+      precoUnitario: [0, [Validators.required, Validators.min(0)]],
+      quantidadeEstoque: [0, [Validators.required, Validators.min(0)]],
+      ativo: [true],
+    });
   }
 
   private carregarProduto(id: number): void {
     this.produtoApi.findById(id).subscribe({
       next: (p: Produto) => {
-        this.codigo = p.codigo ?? '';
-        this.nome = p.nome ?? '';
-        this.categoria = p.categoria ?? '';
-        this.precoUnitario = p.precoUnitario ?? null;
-        this.quantidadeEstoque = p.quantidadeEstoque ?? null;
-        this.ativo = p.ativo ?? true;
+        this.form.patchValue({
+          codigo: p.codigo ?? '',
+          nome: p.nome ?? '',
+          categoria: p.categoria ?? '',
+          precoUnitario: p.precoUnitario ?? 0,
+          quantidadeEstoque: p.quantidadeEstoque ?? 0,
+          ativo: p.ativo ?? true,
+        });
         this.salvarEstadoInicial();
+        this.formAlterado = false;
       },
       error: () => {
         this.alert.error('Erro', 'Não foi possível carregar o produto.');
@@ -82,25 +99,16 @@ export class CadastroProdutoComponent implements OnInit, CanComponentDeactivate 
   }
 
   salvar(): void {
-    const codigo = this.codigo.trim();
-    const nome = this.nome.trim();
-    const categoria = this.categoria.trim();
-    const precoUnitario = this.precoUnitario ?? 0;
-    const quantidadeEstoque = this.quantidadeEstoque ?? 0;
-
-    if (!codigo || !nome || !categoria || precoUnitario <= 0 || quantidadeEstoque < 0) {
-      this.alert.warn('Campos obrigatórios', 'Preencha todos os campos corretamente.');
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.alert.warn(
+        'Campos obrigatórios',
+        'Preencha código, nome, categoria, preço e quantidade corretamente.'
+      );
       return;
     }
 
-    const body: Produto = {
-      codigo,
-      nome,
-      categoria,
-      precoUnitario,
-      quantidadeEstoque,
-      ativo: this.ativo,
-    };
+    const body: Produto = this.form.getRawValue();
 
     const req$ = this.id
       ? this.produtoApi.update(this.id, body)
@@ -109,8 +117,8 @@ export class CadastroProdutoComponent implements OnInit, CanComponentDeactivate 
     req$.subscribe({
       next: () => {
         this.alert.success('Sucesso', 'Produto salvo com sucesso!');
-        this.formAlterado = false;
         this.salvarEstadoInicial();
+        this.formAlterado = false;
         this.router.navigate(['/produtos']);
       },
       error: () => this.alert.error('Erro', 'Não foi possível salvar o produto.'),
@@ -122,28 +130,13 @@ export class CadastroProdutoComponent implements OnInit, CanComponentDeactivate 
   }
 
   private salvarEstadoInicial(): void {
-    const estado = {
-      codigo: this.codigo,
-      nome: this.nome,
-      categoria: this.categoria,
-      precoUnitario: this.precoUnitario,
-      quantidadeEstoque: this.quantidadeEstoque,
-      ativo: this.ativo,
-    };
-    this.formOriginal = JSON.stringify(estado);
+    this.formOriginal = JSON.stringify(this.form.getRawValue());
   }
 
   async podeSair(): Promise<boolean> {
     if (this.formAlterado) {
-      const estadoAtual = {
-        codigo: this.codigo,
-        nome: this.nome,
-        categoria: this.categoria,
-        precoUnitario: this.precoUnitario,
-        quantidadeEstoque: this.quantidadeEstoque,
-        ativo: this.ativo,
-      };
-      const alterado = this.formOriginal !== JSON.stringify(estadoAtual);
+      const atual = JSON.stringify(this.form.getRawValue());
+      const alterado = this.formOriginal !== atual;
       if (alterado) {
         const confirm = await this.alert.confirm(
           'Existem alterações não salvas.',

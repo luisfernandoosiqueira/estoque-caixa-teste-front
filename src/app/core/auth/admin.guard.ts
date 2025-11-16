@@ -3,18 +3,18 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { AlertService } from '../alert/alert.service';
 
-export const authGuard: CanActivateFn = (_route, state) => {
+export const adminGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   const alert = inject(AlertService);
 
-  if (auth.isAuthenticated()) return true;
+  const perfil = auth.getUserPerfil();
 
-  alert.warn('Acesso negado', 'Você precisa fazer login para acessar o sistema.');
+  if (perfil === 'ADMINISTRADOR') {
+    return true;
+  }
 
-  router.navigate(['/login'], {
-    queryParams: { redirect: state.url, authError: true }
-  });
-
+  alert.warn('Acesso restrito', 'Apenas administradores podem acessar esta funcionalidade.');
+  router.navigate(['/home']);
   return false;
 };

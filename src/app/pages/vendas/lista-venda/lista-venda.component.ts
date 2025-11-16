@@ -1,3 +1,4 @@
+// src/app/pages/vendas/lista-venda/lista-venda.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -51,7 +52,6 @@ export class ListaVendaComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregarUsuarios();
-    // deixa o usuário escolher quando buscar
   }
 
   private carregarUsuarios(): void {
@@ -72,7 +72,7 @@ export class ListaVendaComponent implements OnInit {
   buscar(): void {
     this.loading = true;
 
-    // 1) Se tiver período, usa endpoint /periodo e filtra usuário no front (se houver)
+    // 1) Período preenchido
     if (this.filtroInicio && this.filtroFim) {
       const inicioStr = this.toLocalDateTimeString(this.filtroInicio, '00:00:00');
       const fimStr = this.toLocalDateTimeString(this.filtroFim, '23:59:59');
@@ -93,7 +93,7 @@ export class ListaVendaComponent implements OnInit {
       return;
     }
 
-    // 2) Se só tiver usuário
+    // 2) Apenas usuário
     if (this.filtroUsuarioId) {
       this.vendasApi.findByUsuario(this.filtroUsuarioId).subscribe({
         next: (lista) => this.atualizarLista(lista),
@@ -105,7 +105,7 @@ export class ListaVendaComponent implements OnInit {
       return;
     }
 
-    // 3) Sem filtros → lista todas
+    // 3) Sem filtros
     this.vendasApi.findAll().subscribe({
       next: (lista) => this.atualizarLista(lista),
       error: (err) => {

@@ -22,10 +22,10 @@ import { Usuario, Perfil } from '../../../core/models/usuario.model';
     TableModule,
     ButtonModule,
     DropdownModule,
-    InputTextModule
+    InputTextModule,
   ],
   templateUrl: './lista-usuario.component.html',
-  styleUrls: ['./lista-usuario.component.scss']
+  styleUrls: ['./lista-usuario.component.scss'],
 })
 export class ListaUsuarioComponent implements OnInit {
   private router = inject(Router);
@@ -40,15 +40,14 @@ export class ListaUsuarioComponent implements OnInit {
 
   perfis = [
     { label: 'Todos', value: undefined },
-    { label: 'Administrador', value: 'ADMIN' },
-    { label: 'Operador de Caixa', value: 'CAIXA' },
-    { label: 'Gerente', value: 'GERENTE' }
+    { label: 'Administrador', value: 'ADMINISTRADOR' as Perfil },
+    { label: 'Operador de Caixa', value: 'OPERADOR' as Perfil },
   ];
 
   opcoesAtivo = [
     { label: 'Todos', value: undefined },
     { label: 'Ativos', value: true },
-    { label: 'Inativos', value: false }
+    { label: 'Inativos', value: false },
   ];
 
   ngOnInit(): void {
@@ -59,8 +58,7 @@ export class ListaUsuarioComponent implements OnInit {
     this.loading = true;
     this.usuarioApi.findAll().subscribe({
       next: (lista) => {
-        // Aplica filtros locais (simples)
-        this.usuarios = lista.filter(u => {
+        this.usuarios = lista.filter((u) => {
           const perfilOk = !this.filtroPerfil || u.perfil === this.filtroPerfil;
           const ativoOk = this.filtroAtivo === undefined || u.ativo === this.filtroAtivo;
           return perfilOk && ativoOk;
@@ -70,7 +68,7 @@ export class ListaUsuarioComponent implements OnInit {
       error: () => {
         this.loading = false;
         this.alert.error('Erro', 'Não foi possível carregar os usuários.');
-      }
+      },
     });
   }
 
@@ -90,7 +88,7 @@ export class ListaUsuarioComponent implements OnInit {
           this.alert.success('Sucesso', 'Usuário removido com sucesso.');
           this.carregar();
         },
-        error: () => this.alert.error('Erro', 'Não foi possível excluir o usuário.')
+        error: () => this.alert.error('Erro', 'Não foi possível excluir o usuário.'),
       });
     }
   }
@@ -107,7 +105,7 @@ export class ListaUsuarioComponent implements OnInit {
           this.alert.success('Sucesso', 'Usuário inativado com sucesso.');
           this.carregar();
         },
-        error: () => this.alert.error('Erro', 'Não foi possível inativar o usuário.')
+        error: () => this.alert.error('Erro', 'Não foi possível inativar o usuário.'),
       });
     }
   }

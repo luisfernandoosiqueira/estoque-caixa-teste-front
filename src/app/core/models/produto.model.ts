@@ -5,5 +5,5 @@ export interface Produto {
   categoria: string;
   quantidadeEstoque: number;
   precoUnitario: number;
-  ativo?: boolean; // Não tem no backend
+  ativo?: boolean;
 }

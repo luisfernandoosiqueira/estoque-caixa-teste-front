@@ -29,7 +29,7 @@ export class MovimentacoesService {
       .pipe(catchError(this.handleError));
   }
 
-  /** Cria uma nova movimentação de estoque */
+  /** Registra uma nova movimentação de estoque */
   create(body: MovimentacaoRequest): Observable<Movimentacao> {
     return this.http
       .post<Movimentacao>(this.apiUrl, body)

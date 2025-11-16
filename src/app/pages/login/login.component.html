@@ -6,38 +6,41 @@
       <small class="text-600">Acesse sua conta</small>
     </div>
 
-    <div class="mb-3">
-      <label for="email" class="block mb-2 font-medium">E-mail</label>
-      <input
-        id="email"
-        type="email"
-        pInputText
-        [(ngModel)]="email"
-        placeholder="exemplo@empresa.com"
-        class="w-full"
-      />
-    </div>
+    <form [formGroup]="loginForm" (ngSubmit)="logar()">
+      <div class="mb-3">
+        <label for="email" class="block mb-2 font-medium">E-mail</label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          placeholder="exemplo@empresa.com"
+          class="w-full"
+        />
+      </div>
 
-    <div class="mb-4">
-      <label for="senha" class="block mb-2 font-medium">Senha</label>
-      <input
-        id="senha"
-        type="password"
-        pInputText
-        [(ngModel)]="senha"
-        placeholder="Digite sua senha"
-        class="w-full"
-        (keyup.enter)="logar()"
-      />
-    </div>
+      <div class="mb-4">
+        <label for="senha" class="block mb-2 font-medium">Senha</label>
+        <input
+          id="senha"
+          type="password"
+          pInputText
+          formControlName="senha"
+          placeholder="Digite sua senha"
+          class="w-full"
+          (keyup.enter)="logar()"
+        />
+      </div>
 
-    <button
-      pButton
-      label="Entrar"
-      icon="pi pi-sign-in"
-      class="w-full mt-2"
-      (click)="logar()"
-    ></button>
+      <button
+        pButton
+        type="submit"
+        [label]="loading ? 'Entrando...' : 'Entrar'"
+        icon="pi pi-sign-in"
+        class="w-full mt-2"
+        [disabled]="loading"
+      ></button>
+    </form>
 
     <p class="text-center text-600 text-sm mt-4 mb-0">
       © 2025 Gestão de Caixa e Estoque

@@ -1,7 +1,7 @@
 // src/app/pages/movimentacoes/cadastro-movimentacao/cadastro-movimentacao.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { DropdownModule } from 'primeng/dropdown';
@@ -26,7 +26,7 @@ import { CanComponentDeactivate } from '../../../core/auth/unsaved-changes.guard
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     DropdownModule,
     InputNumberModule,
     ButtonModule,
@@ -42,15 +42,10 @@ export class CadastroMovimentacaoComponent
   private movimentacoesApi = inject(MovimentacoesService);
   private alert = inject(AlertService);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
 
   produtos: Produto[] = [];
-
-  // campos do formulário
-  produtoId?: number;
-  tipo: TipoMovimentacao | '' = '';
-  quantidade: number | null = null;
-  observacao = '';
-
+  form!: FormGroup;
   formAlterado = false;
 
   tiposMovimentacao = [
@@ -60,11 +55,21 @@ export class CadastroMovimentacaoComponent
   ];
 
   ngOnInit(): void {
+    this.criarForm();
     this.carregarProdutos();
+
+    this.form.valueChanges.subscribe(() => {
+      this.formAlterado = true;
+    });
   }
 
-  marcarAlterado(): void {
-    this.formAlterado = true;
+  private criarForm(): void {
+    this.form = this.fb.group({
+      produtoId: [null, Validators.required],
+      tipo: [null, Validators.required],
+      quantidade: [1, [Validators.required, Validators.min(1)]],
+      motivo: [''],
+    });
   }
 
   private carregarProdutos(): void {
@@ -76,17 +81,22 @@ export class CadastroMovimentacaoComponent
   }
 
   salvar(): void {
-    if (!this.produtoId) {
+    const raw = this.form.getRawValue();
+
+    if (!raw.produtoId) {
+      this.form.get('produtoId')?.markAsTouched();
       this.alert.warn('Campos obrigatórios', 'Selecione um produto.');
       return;
     }
 
-    if (!this.tipo) {
+    if (!raw.tipo) {
+      this.form.get('tipo')?.markAsTouched();
       this.alert.warn('Campos obrigatórios', 'Selecione o tipo de movimentação.');
       return;
     }
 
-    if (!this.quantidade || this.quantidade <= 0) {
+    if (!raw.quantidade || raw.quantidade <= 0) {
+      this.form.get('quantidade')?.markAsTouched();
       this.alert.warn(
         'Campos obrigatórios',
         'Informe uma quantidade maior que zero.'
@@ -94,17 +104,33 @@ export class CadastroMovimentacaoComponent
       return;
     }
 
+    const motivo = (raw.motivo ?? '').trim();
+    if (motivo.length > 255) {
+      this.form.get('motivo')?.markAsTouched();
+      this.alert.warn(
+        'Motivo muito longo',
+        'O motivo deve ter no máximo 255 caracteres.'
+      );
+      return;
+    }
+
     const body: MovimentacaoRequest = {
-      produtoId: this.produtoId,
-      tipo: this.tipo,
-      quantidade: this.quantidade,
-      observacao: this.observacao?.trim() || undefined,
+      produtoId: raw.produtoId,
+      tipo: raw.tipo,
+      quantidade: raw.quantidade,
+      motivo: motivo || undefined,
     };
 
     this.movimentacoesApi.create(body).subscribe({
       next: () => {
         this.alert.success('Sucesso', 'Movimentação registrada com sucesso!');
         this.formAlterado = false;
+        this.form.reset({
+          produtoId: null,
+          tipo: null,
+          quantidade: 1,
+          motivo: '',
+        });
         this.router.navigate(['/movimentacoes']);
       },
       error: () =>

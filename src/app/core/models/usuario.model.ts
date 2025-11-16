@@ -1,11 +1,20 @@
 // src/app/core/models/usuario.model.ts
-export type Perfil = 'ADMIN' | 'CAIXA' | 'GERENTE';
 
+export type Perfil = 'ADMINISTRADOR' | 'OPERADOR';
+
+// Model usado para CRUD de usuários
 export interface Usuario {
   id?: number;
-  nome: string;              // ✅ usado no cadastro
+  nomeCompleto: string;   
   email: string;
-  senha?: string;            // ✅ opcional no update
-  perfil: Perfil;            // ✅ enum tipado
+  senha?: string;
+  perfil: Perfil;
   ativo?: boolean;
+}
+
+
+export interface UsuarioLogado {
+  nomeCompleto: string;
+  email: string;
+  perfil: Perfil;
 }
