@@ -1,7 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, ParamMap } from '@angular/router';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators
+} from '@angular/forms';
+import { ActivatedRoute, Router, ParamMap, RouterLink } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,7 +18,14 @@ import { AlertService } from '../../core/alert/alert.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, CardModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    CardModule,
+    RouterLink,
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
@@ -31,11 +43,12 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.criarForm();
-    this.mostrarAlertaSeNaoAutenticado(this.route.snapshot.queryParamMap);
+
+    this.mostrarAlertasDeQuery(this.route.snapshot.queryParamMap);
 
     this.route.queryParamMap.subscribe((p) => {
       this.redirectUrl = p.get('redirect');
-      this.mostrarAlertaSeNaoAutenticado(p);
+      this.mostrarAlertasDeQuery(p);
     });
   }
 
@@ -46,12 +59,23 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  private mostrarAlertaSeNaoAutenticado(p: ParamMap): void {
+  private mostrarAlertasDeQuery(p: ParamMap): void {
     const authError = p.get('authError');
+    const cadastroSucesso = p.get('cadastroSucesso');
+
     if (authError) {
       setTimeout(() => {
         this.alert.warn('Acesso negado', 'Faça login para continuar.');
       }, 200);
+    }
+
+    if (cadastroSucesso) {
+      setTimeout(() => {
+        this.alert.success(
+          'Sucesso',
+          'Usuário cadastrado com sucesso. Faça login para continuar.'
+        );
+      }, 250);
     }
   }
 
@@ -63,13 +87,15 @@ export class LoginComponent implements OnInit {
     }
 
     const { email, senha } = this.loginForm.value;
-
     this.loading = true;
 
     this.auth.login(email, senha).subscribe({
       next: (usuario) => {
         this.loading = false;
-        this.alert.success('Bem-vindo!', `Login realizado com sucesso, ${usuario.nomeCompleto}.`);
+        this.alert.success(
+          'Bem-vindo!',
+          `Login realizado com sucesso, ${usuario.nomeCompleto}.`
+        );
         const destino = this.redirectUrl || '/home';
         this.router.navigateByUrl(destino);
       },

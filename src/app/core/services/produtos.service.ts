@@ -44,7 +44,8 @@ export class ProdutosService {
   }
 
   private handleError(error: any) {
-    console.error('Erro na API de produtos:', error);
-    return throwError(() => new Error('Erro ao consultar a API de produtos.'));
+    console.error('Erro na API de produtos:', error); // log simples
+    // repropaga o erro original para o componente tratar a mensagem do backend
+    return throwError(() => error);
   }
 }

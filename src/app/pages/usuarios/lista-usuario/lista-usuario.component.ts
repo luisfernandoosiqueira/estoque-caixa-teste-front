@@ -60,7 +60,8 @@ export class ListaUsuarioComponent implements OnInit {
       next: (lista) => {
         this.usuarios = lista.filter((u) => {
           const perfilOk = !this.filtroPerfil || u.perfil === this.filtroPerfil;
-          const ativoOk = this.filtroAtivo === undefined || u.ativo === this.filtroAtivo;
+          const ativoOk =
+            this.filtroAtivo === undefined || u.ativo === this.filtroAtivo;
           return perfilOk && ativoOk;
         });
         this.loading = false;
@@ -73,24 +74,16 @@ export class ListaUsuarioComponent implements OnInit {
   }
 
   editar(id: number): void {
-    this.router.navigate(['/usuarios', id]);
+    // rota de edição correta
+    this.router.navigate(['/usuarios/editar', id]);
   }
 
-  async excluir(id: number): Promise<void> {
-    const confirm = await this.alert.confirm(
-      'Excluir usuário?',
-      'Essa ação não poderá ser desfeita.'
+  excluir(id: number): void {
+    // usuário não deve ser excluído, apenas inativado
+    this.alert.warn(
+      'Operação não permitida',
+      'Usuários não podem ser excluídos. Utilize a opção de inativar.'
     );
-
-    if (confirm.isConfirmed) {
-      this.usuarioApi.delete(id).subscribe({
-        next: () => {
-          this.alert.success('Sucesso', 'Usuário removido com sucesso.');
-          this.carregar();
-        },
-        error: () => this.alert.error('Erro', 'Não foi possível excluir o usuário.'),
-      });
-    }
   }
 
   async inativar(id: number): Promise<void> {
@@ -105,7 +98,26 @@ export class ListaUsuarioComponent implements OnInit {
           this.alert.success('Sucesso', 'Usuário inativado com sucesso.');
           this.carregar();
         },
-        error: () => this.alert.error('Erro', 'Não foi possível inativar o usuário.'),
+        error: () =>
+          this.alert.error('Erro', 'Não foi possível inativar o usuário.'),
+      });
+    }
+  }
+
+  async ativar(id: number): Promise<void> {
+    const confirm = await this.alert.confirm(
+      'Ativar usuário?',
+      'O usuário voltará a ter acesso ao sistema.'
+    );
+
+    if (confirm.isConfirmed) {
+      this.usuarioApi.ativar(id).subscribe({
+        next: () => {
+          this.alert.success('Sucesso', 'Usuário ativado com sucesso.');
+          this.carregar();
+        },
+        error: () =>
+          this.alert.error('Erro', 'Não foi possível ativar o usuário.'),
       });
     }
   }

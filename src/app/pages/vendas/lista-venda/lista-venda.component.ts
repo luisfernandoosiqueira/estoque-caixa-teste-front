@@ -2,7 +2,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -39,6 +39,7 @@ export class ListaVendaComponent implements OnInit {
   private vendasApi = inject(VendasService);
   private usuariosApi = inject(UsuariosService);
   private alert = inject(AlertService);
+  private router = inject(Router);
 
   vendas: Venda[] = [];
   usuarios: Usuario[] = [];
@@ -72,7 +73,7 @@ export class ListaVendaComponent implements OnInit {
   buscar(): void {
     this.loading = true;
 
-    // 1) Período preenchido
+    // período preenchido
     if (this.filtroInicio && this.filtroFim) {
       const inicioStr = this.toLocalDateTimeString(this.filtroInicio, '00:00:00');
       const fimStr = this.toLocalDateTimeString(this.filtroFim, '23:59:59');
@@ -93,7 +94,7 @@ export class ListaVendaComponent implements OnInit {
       return;
     }
 
-    // 2) Apenas usuário
+    // apenas usuário
     if (this.filtroUsuarioId) {
       this.vendasApi.findByUsuario(this.filtroUsuarioId).subscribe({
         next: (lista) => this.atualizarLista(lista),
@@ -105,7 +106,7 @@ export class ListaVendaComponent implements OnInit {
       return;
     }
 
-    // 3) Sem filtros
+    // sem filtros
     this.vendasApi.findAll().subscribe({
       next: (lista) => this.atualizarLista(lista),
       error: (err) => {
@@ -124,26 +125,9 @@ export class ListaVendaComponent implements OnInit {
     this.loading = false;
   }
 
-  async excluir(id: number | undefined): Promise<void> {
+  visualizar(id: number | undefined): void {
     if (!id) return;
-
-    const confirm = await this.alert.confirm(
-      'Excluir venda?',
-      'Essa ação não poderá ser desfeita.'
-    );
-
-    if (!confirm.isConfirmed) {
-      return;
-    }
-
-    this.vendasApi.delete(id).subscribe({
-      next: () => {
-        this.alert.success('Sucesso', 'Venda excluída com sucesso.');
-        this.buscar();
-      },
-      error: (err) =>
-        this.alert.error('Erro', err?.message ?? 'Erro ao excluir venda.')
-    });
+    this.router.navigate(['/vendas', id]);
   }
 
   qtdItens(v: Venda): number {

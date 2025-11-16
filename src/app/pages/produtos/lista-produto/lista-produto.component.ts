@@ -45,7 +45,7 @@ export class ListaProdutoComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.carregar(); // opcional: pode começar carregando
+    this.carregar();
   }
 
   carregar(): void {
@@ -57,7 +57,7 @@ export class ListaProdutoComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.alert.error('Erro', err?.message ?? 'Erro ao consultar API de produtos.');
+        this.alert.error('Erro', this.getErrorMessage(err));
       },
     });
   }
@@ -69,6 +69,11 @@ export class ListaProdutoComponent implements OnInit {
         this.filtroAtivo === undefined ? true : (p.ativo ?? true) === this.filtroAtivo;
       return categoriaOk && ativoOk;
     });
+  }
+
+  private getErrorMessage(err: any): string {
+    // tenta usar a mensagem padronizada do backend
+    return err?.error?.message ?? err?.message ?? 'Erro ao processar a operação.';
   }
 
   editar(id: number): void {
@@ -87,8 +92,9 @@ export class ListaProdutoComponent implements OnInit {
           this.alert.success('Excluído', 'Produto removido com sucesso.');
           this.carregar();
         },
-        error: (err) =>
-          this.alert.error('Erro', err?.message ?? 'Erro ao excluir produto.'),
+        error: (err) => {
+          this.alert.error('Erro', this.getErrorMessage(err));
+        },
       });
     }
   }

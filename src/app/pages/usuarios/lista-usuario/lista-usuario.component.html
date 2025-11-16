@@ -65,22 +65,13 @@
             (click)="editar(u.id!)">
           </button>
 
+          <!-- Um único botão que muda conforme o status -->
           <button
             pButton
-            label="Inativar"
-            icon="pi pi-ban"
+            [label]="u.ativo ? 'Inativar' : 'Ativar'"
+            [icon]="u.ativo ? 'pi pi-ban' : 'pi pi-check'"
             size="small"
-            [disabled]="!u.ativo"
-            (click)="inativar(u.id!)">
-          </button>
-
-          <button
-            pButton
-            label="Excluir"
-            icon="pi pi-trash"
-            severity="danger"
-            size="small"
-            (click)="excluir(u.id!)">
+            (click)="u.ativo ? inativar(u.id!) : ativar(u.id!)">
           </button>
         </td>
       </tr>

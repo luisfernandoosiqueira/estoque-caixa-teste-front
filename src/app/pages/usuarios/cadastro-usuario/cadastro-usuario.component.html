@@ -1,89 +1,119 @@
-<div class="mb-4 p-4">
-  <p-card>
-    <h2>{{ id ? 'Editar Usuário' : 'Cadastro de Usuário' }}</h2>
+<!-- src/app/pages/usuarios/cadastro-usuario/cadastro-usuario.component.html -->
 
-    <form class="grid mt-4" [formGroup]="form" (ngSubmit)="salvar()">
-      <!-- Nome completo -->
-      <div class="col-12 md:col-6">
-        <label for="nomeCompleto" class="block mb-2">Nome completo</label>
-        <input
-          id="nomeCompleto"
-          type="text"
-          pInputText
-          class="w-full"
-          formControlName="nomeCompleto" />
-      </div>
+<div class="grid justify-content-center">
+  <div class="col-12 md:col-8 lg:col-6">
+    <p-card>
+      <ng-template pTemplate="header">
+        <h2 class="m-0">
+          {{ id ? 'Editar Usuário' : 'Cadastro de Usuário' }}
+        </h2>
+      </ng-template>
 
-      <!-- E-mail -->
-      <div class="col-12 md:col-6">
-        <label for="email" class="block mb-2">E-mail</label>
-        <input
-          id="email"
-          type="email"
-          pInputText
-          class="w-full"
-          formControlName="email" />
-      </div>
+      <form class="grid mt-4" [formGroup]="form" (ngSubmit)="salvar()">
+        <!-- Nome completo -->
+        <div class="col-12">
+          <label for="nomeCompleto" class="block mb-1">Nome Completo</label>
+          <input
+            id="nomeCompleto"
+            type="text"
+            pInputText
+            class="w-full"
+            formControlName="nomeCompleto"
+          />
+          <small class="p-error" *ngIf="form.get('nomeCompleto')?.invalid && form.get('nomeCompleto')?.touched">
+            Informe o nome completo (mínimo 3 caracteres).
+          </small>
+        </div>
 
-      <!-- Senha -->
-      <div class="col-12 md:col-6">
-        <label for="senha" class="block mb-2">
-          Senha
+        <!-- E-mail -->
+        <div class="col-12">
+          <label for="email" class="block mb-1">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            pInputText
+            class="w-full"
+            formControlName="email"
+          />
+          <small class="p-error" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+            Informe um e-mail válido.
+          </small>
+        </div>
+
+        <!-- Senha -->
+        <div class="col-12">
+          <label for="senha" class="block mb-1">Senha</label>
+          <input
+            id="senha"
+            type="password"
+            pInputText
+            class="w-full"
+            formControlName="senha"
+          />
+
+          <!-- mensagem diferente para novo x edição -->
           <small class="text-600" *ngIf="!id">
-            (mín. 8 caracteres)
+            A senha deve ter pelo menos 8 caracteres.
           </small>
           <small class="text-600" *ngIf="id">
-            (preencha apenas para alterar)
+            Para alterar a senha, informe uma nova (mínimo 8 caracteres).
           </small>
-        </label>
-        <input
-          id="senha"
-          type="password"
-          pInputText
-          class="w-full"
-          formControlName="senha" />
-      </div>
 
-      <!-- Perfil -->
-      <div class="col-12 md:col-6">
-        <label for="perfil" class="block mb-2">Perfil</label>
-        <p-dropdown
-          inputId="perfil"
-          [options]="perfis"
-          formControlName="perfil"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Selecione um perfil"
-          class="w-full">
-        </p-dropdown>
-      </div>
+          <small class="p-error d-block" *ngIf="form.get('senha')?.invalid && form.get('senha')?.touched">
+            Senha inválida.
+          </small>
+        </div>
 
-      <!-- Ativo -->
-      <div class="col-12 mt-3 flex align-items-center gap-2">
-        <label for="ativo" class="mr-2">Ativo?</label>
-        <input
-          id="ativo"
-          type="checkbox"
-          formControlName="ativo" />
-      </div>
+        <!-- Perfil -->
+        <div class="col-12 md:col-6">
+          <label for="perfil" class="block mb-1">Perfil</label>
+          <p-dropdown
+            id="perfil"
+            [options]="perfis"
+            formControlName="perfil"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione o perfil"
+            class="w-full"
+          >
+          </p-dropdown>
+          <small class="p-error" *ngIf="form.get('perfil')?.invalid && form.get('perfil')?.touched">
+            Selecione um perfil.
+          </small>
+        </div>
 
-      <!-- Botões -->
-      <div class="col-12 flex gap-2 mt-4 flex-wrap">
-        <button
-          pButton
-          type="submit"
-          [label]="labelSalvar"
-          icon="pi pi-save">
-        </button>
+        <!-- Ativo -->
+        <div class="col-12 md:col-6 flex align-items-end">
+          <div class="field-checkbox">
+            <input
+              type="checkbox"
+              id="ativo"
+              formControlName="ativo"
+            />
+            <label for="ativo" class="ml-2">Usuário Ativo</label>
+          </div>
+        </div>
 
-        <button
-          pButton
-          type="button"
-          label="Cancelar"
-          class="p-button-text"
-          (click)="cancelar()">
-        </button>
-      </div>
-    </form>
-  </p-card>
+        <!-- Botões -->
+        <div class="col-12 flex justify-content-end gap-2 mt-4">
+          <button
+            pButton
+            type="button"
+            label="Cancelar"
+            severity="secondary"
+            (click)="cancelar()"
+          >
+          </button>
+
+          <button
+            pButton
+            type="submit"
+            [label]="labelSalvar"
+            icon="pi pi-save"
+          >
+          </button>
+        </div>
+      </form>
+    </p-card>
+  </div>
 </div>

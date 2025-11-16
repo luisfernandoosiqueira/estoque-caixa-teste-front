@@ -73,7 +73,7 @@ export class CadastroProdutoComponent implements OnInit, CanComponentDeactivate 
       categoria: ['', Validators.required],
       precoUnitario: [0, [Validators.required, Validators.min(0)]],
       quantidadeEstoque: [0, [Validators.required, Validators.min(0)]],
-      ativo: [true],
+      ativo: [true], // padrão ativo
     });
   }
 
@@ -108,7 +108,11 @@ export class CadastroProdutoComponent implements OnInit, CanComponentDeactivate 
       return;
     }
 
-    const body: Produto = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+    const body: Produto = {
+      ...raw,
+      ativo: !!raw.ativo, // garante booleano (true/false) no payload
+    };
 
     const req$ = this.id
       ? this.produtoApi.update(this.id, body)

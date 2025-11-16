@@ -1,55 +1,77 @@
 <!-- src/app/pages/movimentacoes/lista-movimentacao/lista-movimentacao.component.html -->
 
 <!-- Filtros -->
-<div class="card filtros flex align-items-center gap-3 flex-wrap p-3">
-  <!-- Data início -->
-  <div class="campo-data">
-    <label class="block mb-1">Início</label>
-    <p-calendar
-      [(ngModel)]="dataInicio"
-      dateFormat="dd/mm/yy"
-      showIcon="true"
-      inputId="dtInicio"
-      class="w-full">
-    </p-calendar>
+<div class="card filtros p-3">
+  <div class="flex align-items-end gap-3 flex-wrap">
+
+    <!-- Data início -->
+    <div class="campo-data flex flex-column">
+      <label class="block mb-1" for="dtInicio">Início</label>
+      <p-calendar
+        [(ngModel)]="dataInicio"
+        dateFormat="dd/mm/yy"
+        showIcon="true"
+        inputId="dtInicio"
+        class="w-full">
+      </p-calendar>
+    </div>
+
+    <!-- Data fim -->
+    <div class="campo-data flex flex-column">
+      <label class="block mb-1" for="dtFim">Fim</label>
+      <p-calendar
+        [(ngModel)]="dataFim"
+        dateFormat="dd/mm/yy"
+        showIcon="true"
+        inputId="dtFim"
+        class="w-full">
+      </p-calendar>
+    </div>
+
+    <!-- Tipo de movimentação -->
+    <div class="campo-tipo flex flex-column">
+      <label class="block mb-1" for="tipoMov">Tipo</label>
+      <p-dropdown
+        [options]="tiposMovimentacaoFiltro"
+        [(ngModel)]="filtroTipo"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Tipo de movimentação"
+        class="w-15rem"
+        inputId="tipoMov">
+      </p-dropdown>
+    </div>
+
+    <!-- Botões -->
+    <div class="flex gap-2 mb-1">
+      <button
+        pButton
+        icon="pi pi-search"
+        label="Buscar"
+        (click)="carregar()">
+      </button>
+
+      <button
+        pButton
+        icon="pi pi-times"
+        label="Limpar"
+        class="p-button-text"
+        (click)="limparFiltros()">
+      </button>
+    </div>
+
+    <div class="flex-1"></div>
+
+    <!-- Nova movimentação -->
+    <div class="mb-1">
+      <button
+        pButton
+        label="Nova Movimentação"
+        icon="pi pi-plus"
+        [routerLink]="['/movimentacoes/cadastro']">
+      </button>
+    </div>
   </div>
-
-  <!-- Data fim -->
-  <div class="campo-data">
-    <label class="block mb-1">Fim</label>
-    <p-calendar
-      [(ngModel)]="dataFim"
-      dateFormat="dd/mm/yy"
-      showIcon="true"
-      inputId="dtFim"
-      class="w-full">
-    </p-calendar>
-  </div>
-
-  <button
-    pButton
-    icon="pi pi-search"
-    label="Buscar"
-    (click)="carregar()">
-  </button>
-
-  <button
-    pButton
-    icon="pi pi-times"
-    label="Limpar"
-    class="p-button-text"
-    (click)="limparFiltros()">
-  </button>
-
-  <div class="flex-1"></div>
-
-  <!-- Nova movimentação -->
-  <button
-    pButton
-    label="Nova Movimentação"
-    icon="pi pi-plus"
-    [routerLink]="['/movimentacoes/cadastro']">
-  </button>
 </div>
 
 <!-- Tabela -->
@@ -68,7 +90,6 @@
         <th>Tipo</th>
         <th style="width: 6rem;">Qtd</th>
         <th>Motivo</th>
-        <th style="width: 8rem;">Ações</th>
       </tr>
     </ng-template>
 
@@ -92,20 +113,12 @@
         </td>
         <td>{{ m.quantidade }}</td>
         <td>{{ m.motivo || '-' }}</td>
-        <td>
-          <button
-            pButton
-            icon="pi pi-trash"
-            class="p-button-rounded p-button-danger p-button-sm"
-            (click)="excluir(m.id)">
-          </button>
-        </td>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7">
+        <td colspan="6">
           Nenhuma movimentação encontrada. Ajuste os filtros e clique em "Buscar".
         </td>
       </tr>

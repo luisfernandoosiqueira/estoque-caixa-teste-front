@@ -7,9 +7,10 @@ import { RouterLink } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
 
 import { MovimentacoesService } from '../../../core/services/movimentacoes.service';
-import { Movimentacao } from '../../../core/models/movimentacao.model';
+import { Movimentacao, TipoMovimentacao } from '../../../core/models/movimentacao.model';
 import { AlertService } from '../../../core/alert/alert.service';
 
 @Component({
@@ -21,7 +22,8 @@ import { AlertService } from '../../../core/alert/alert.service';
     RouterLink,
     TableModule,
     ButtonModule,
-    CalendarModule
+    CalendarModule,
+    DropdownModule
   ],
   templateUrl: './lista-movimentacao.component.html',
   styleUrls: ['./lista-movimentacao.component.scss']
@@ -37,8 +39,18 @@ export class ListaMovimentacaoComponent implements OnInit {
   dataInicio: Date | null = null;
   dataFim: Date | null = null;
 
+  // filtro por tipo
+  filtroTipo?: TipoMovimentacao;
+
+  tiposMovimentacaoFiltro = [
+    { label: 'Todos os tipos', value: undefined },
+    { label: 'Entrada em estoque', value: 'ENTRADA' as TipoMovimentacao },
+    { label: 'Saída de estoque', value: 'SAIDA' as TipoMovimentacao },
+    { label: 'Ajuste de estoque', value: 'AJUSTE' as TipoMovimentacao }
+  ];
+
   ngOnInit(): void {
-    // usuário escolhe quando carregar
+    // usuário decide quando buscar
   }
 
   carregar(): void {
@@ -48,7 +60,7 @@ export class ListaMovimentacaoComponent implements OnInit {
     if (!this.dataInicio && !this.dataFim) {
       this.movApi.findAll().subscribe({
         next: (lista: Movimentacao[]) => {
-          this.movimentacoes = lista;
+          this.movimentacoes = this.aplicarFiltroTipo(lista);
           this.loading = false;
         },
         error: (err: any) => {
@@ -74,7 +86,7 @@ export class ListaMovimentacaoComponent implements OnInit {
 
     this.movApi.findByPeriodo(inicio, fim).subscribe({
       next: (lista: Movimentacao[]) => {
-        this.movimentacoes = lista;
+        this.movimentacoes = this.aplicarFiltroTipo(lista);
         this.loading = false;
       },
       error: (err: any) => {
@@ -84,30 +96,18 @@ export class ListaMovimentacaoComponent implements OnInit {
     });
   }
 
+  private aplicarFiltroTipo(lista: Movimentacao[]): Movimentacao[] {
+    if (!this.filtroTipo) {
+      return lista;
+    }
+    return lista.filter(m => m.tipo === this.filtroTipo);
+  }
+
   limparFiltros(): void {
     this.dataInicio = null;
     this.dataFim = null;
+    this.filtroTipo = undefined;
     this.movimentacoes = [];
-  }
-
-  async excluir(id: number | undefined): Promise<void> {
-    if (!id) return;
-
-    const confirm = await this.alert.confirm(
-      'Excluir movimentação?',
-      'Essa ação não poderá ser desfeita.'
-    );
-
-    if (!confirm.isConfirmed) return;
-
-    this.movApi.delete(id).subscribe({
-      next: () => {
-        this.alert.success('Excluída', 'Movimentação removida com sucesso.');
-        this.carregar();
-      },
-      error: (err: any) =>
-        this.alert.error('Erro', err?.message ?? 'Erro ao excluir movimentação.')
-    });
   }
 
   private formatInicio(d: Date): string {

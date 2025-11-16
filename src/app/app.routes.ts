@@ -17,6 +17,7 @@ import { CadastroUsuarioComponent } from './pages/usuarios/cadastro-usuario/cada
 // Vendas
 import { ListaVendaComponent } from './pages/vendas/lista-venda/lista-venda.component';
 import { CadastroVendaComponent } from './pages/vendas/cadastro-venda/cadastro-venda.component';
+import { DetalheVendaComponent } from './pages/vendas/detalhe-venda/detalhe-venda.component';
 
 // Movimentações
 import { ListaMovimentacaoComponent } from './pages/movimentacoes/lista-movimentacao/lista-movimentacao.component';
@@ -32,6 +33,13 @@ export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
   { path: 'login', component: LoginComponent },
+
+  // cadastro público (sem authGuard)
+  {
+    path: 'cadastro-usuario',
+    component: CadastroUsuarioComponent,
+    canDeactivate: [unsavedChangesGuard]
+  },
 
   {
     path: '',
@@ -61,7 +69,7 @@ export const routes: Routes = [
         canDeactivate: [unsavedChangesGuard]
       },
 
-      // USUÁRIOS (somente ADMIN)
+      // USUÁRIOS (somente ADMIN dentro do sistema)
       {
         path: 'usuarios',
         component: ListaUsuarioComponent,
@@ -91,6 +99,11 @@ export const routes: Routes = [
         component: CadastroVendaComponent,
         canActivate: [caixaGuard],
         canDeactivate: [unsavedChangesGuard]
+      },
+      {
+        path: 'vendas/:id',
+        component: DetalheVendaComponent,
+        canActivate: [caixaGuard]
       },
 
       // MOVIMENTAÇÕES DE ESTOQUE (somente ADMIN)

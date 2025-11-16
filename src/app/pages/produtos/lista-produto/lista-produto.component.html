@@ -62,7 +62,10 @@
         <td>{{ p.categoria }}</td>
         <td>{{ p.precoUnitario | number:'1.2-2' }}</td>
         <td>{{ p.quantidadeEstoque }}</td>
-        <td>{{ p.ativo ? 'Ativo' : 'Inativo' }}</td>
+
+        <!-- null/undefined => Ativo -->
+        <td>{{ p.ativo === false ? 'Inativo' : 'Ativo' }}</td>
+
         <td class="flex gap-2 flex-wrap">
           <button
             pButton

@@ -30,7 +30,7 @@ export class VendasService {
   }
 
   findByPeriodo(inicio: string, fim: string): Observable<Venda[]> {
-    let params = new HttpParams()
+    const params = new HttpParams()
       .set('inicio', inicio)
       .set('fim', fim);
 
@@ -39,16 +39,10 @@ export class VendasService {
       .pipe(catchError(this.handleError));
   }
 
-  // 🔹 Aqui está o ponto importante: usa VendaRequest no envio
+  // envio de nova venda
   create(body: VendaRequest): Observable<Venda> {
     return this.http
       .post<Venda>(this.apiUrl, body)
-      .pipe(catchError(this.handleError));
-  }
-
-  delete(id: number): Observable<void> {
-    return this.http
-      .delete<void>(`${this.apiUrl}/${id}`)
       .pipe(catchError(this.handleError));
   }
 

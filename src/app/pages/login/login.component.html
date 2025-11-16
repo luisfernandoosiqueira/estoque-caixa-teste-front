@@ -38,9 +38,19 @@
         [label]="loading ? 'Entrando...' : 'Entrar'"
         icon="pi pi-sign-in"
         class="w-full mt-2"
-        [disabled]="loading"
-      ></button>
+        [disabled]="loading">
+      </button>
     </form>
+
+    <div class="text-center mt-3">
+      <span class="text-600 text-sm">Não tem usuário cadastrado?</span>
+      <button
+        pButton
+        label="Cadastrar usuário"
+        class="p-button-text p-button-sm ml-2"
+        [routerLink]="['/cadastro-usuario']">
+      </button>
+    </div>
 
     <p class="text-center text-600 text-sm mt-4 mb-0">
       © 2025 Gestão de Caixa e Estoque

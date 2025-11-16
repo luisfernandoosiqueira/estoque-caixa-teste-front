@@ -15,7 +15,7 @@ import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 
 import { ProdutosService } from '../../../core/services/produtos.service';
-import { VendasService } from '../../../core/services/vendas.service';
+import { VendasService } from '../../../core/services/vendas.service'; // ✅ sem o ponto antes de core
 import { UsuariosService } from '../../../core/services/usuarios.service';
 
 import { Produto } from '../../../core/models/produto.model';
@@ -67,7 +67,6 @@ export class CadastroVendaComponent implements OnInit, CanComponentDeactivate {
   private formAlterado = false;
 
   // getters de apoio
-
   get itemGroup(): FormGroup {
     return this.vendaForm.get('item') as FormGroup;
   }
@@ -111,7 +110,8 @@ export class CadastroVendaComponent implements OnInit, CanComponentDeactivate {
   }
 
   private carregarUsuarios(): void {
-    this.usuariosApi.findAll().subscribe({
+    // carrega apenas usuários ativos do back-end
+    this.usuariosApi.findAtivos().subscribe({
       next: (lista) => (this.usuarios = lista),
       error: () =>
         this.alert.error('Erro', 'Não foi possível carregar os usuários.'),
@@ -189,7 +189,6 @@ export class CadastroVendaComponent implements OnInit, CanComponentDeactivate {
 
   salvar(): void {
     if (this.vendaForm.invalid) {
-      // marca campos obrigatórios
       this.vendaForm.get('usuarioId')?.markAsTouched();
       this.vendaForm.get('valorRecebido')?.markAsTouched();
 
@@ -214,6 +213,16 @@ export class CadastroVendaComponent implements OnInit, CanComponentDeactivate {
 
     if (!usuarioId) {
       this.alert.warn('Campos obrigatórios', 'Selecione um usuário.');
+      return;
+    }
+
+    // defesa extra: garante que o usuário ainda é ativo
+    const usuarioSelecionado = this.usuarios.find((u) => u.id === usuarioId);
+    if (!usuarioSelecionado || !usuarioSelecionado.ativo) {
+      this.alert.warn(
+        'Usuário inválido',
+        'Selecione um usuário ativo para registrar a venda.'
+      );
       return;
     }
 
@@ -269,11 +278,14 @@ export class CadastroVendaComponent implements OnInit, CanComponentDeactivate {
   async podeSair(): Promise<boolean> {
     if (!this.formAlterado && !this.vendaForm.dirty) return true;
 
-    const confirm = await this.alert.confirm(
+    const resposta = await this.alert.confirm(
       'Alterações não salvas',
       'Deseja realmente sair desta tela?'
     );
 
-    return confirm.isConfirmed;
+    // cast para o formato retornado pelo SweetAlert
+    const result = resposta as { isConfirmed: boolean };
+
+    return !!result.isConfirmed;
   }
 }

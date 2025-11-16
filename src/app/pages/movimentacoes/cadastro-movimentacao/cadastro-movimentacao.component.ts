@@ -46,7 +46,7 @@ export class CadastroMovimentacaoComponent
 
   produtos: Produto[] = [];
   form!: FormGroup;
-  formAlterado = false;
+  formAlterado = false; // usado pelo guard
 
   tiposMovimentacao = [
     { label: 'Entrada em estoque', value: 'ENTRADA' as TipoMovimentacao },
@@ -124,13 +124,12 @@ export class CadastroMovimentacaoComponent
     this.movimentacoesApi.create(body).subscribe({
       next: () => {
         this.alert.success('Sucesso', 'Movimentação registrada com sucesso!');
+
+        // marca como salvo para o guard não exibir alerta
         this.formAlterado = false;
-        this.form.reset({
-          produtoId: null,
-          tipo: null,
-          quantidade: 1,
-          motivo: '',
-        });
+        this.form.markAsPristine();
+        this.form.markAsUntouched();
+
         this.router.navigate(['/movimentacoes']);
       },
       error: () =>
@@ -146,7 +145,9 @@ export class CadastroMovimentacaoComponent
   }
 
   async podeSair(): Promise<boolean> {
-    if (!this.formAlterado) return true;
+    if (!this.form || (!this.formAlterado && !this.form.dirty)) {
+      return true;
+    }
 
     const confirm = await this.alert.confirm(
       'Alterações não salvas',

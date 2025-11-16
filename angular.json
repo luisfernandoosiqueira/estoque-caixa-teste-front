@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "gestao-funcionarios": {
+    "gestao-caixa-estoque": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": { "style": "scss" }
@@ -52,17 +52,17 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "proxyConfig": "src/proxy.conf.json",        
-            "host": "0.0.0.0",                          
-            "port": 4200,                               
-            "open": true                                
+            "proxyConfig": "src/proxy.conf.json",
+            "host": "0.0.0.0",
+            "port": 4200,
+            "open": true
           },
           "configurations": {
             "production": {
-              "buildTarget": "gestao-funcionarios:build:production"
+              "buildTarget": "gestao-caixa-estoque:build:production"
             },
             "development": {
-              "buildTarget": "gestao-funcionarios:build:development"
+              "buildTarget": "gestao-caixa-estoque:build:development"
             }
           },
           "defaultConfiguration": "development"

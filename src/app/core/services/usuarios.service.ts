@@ -14,6 +14,13 @@ export class UsuariosService {
     return this.http.get<Usuario[]>(this.apiUrl).pipe(catchError(this.handleError));
   }
 
+  /** Lista apenas ativos (para vendas, etc.) */
+  findAtivos(): Observable<Usuario[]> {
+    return this.http
+      .get<Usuario[]>(`${this.apiUrl}/ativos`)
+      .pipe(catchError(this.handleError));
+  }
+
   /** Busca por ID */
   findById(id: number): Observable<Usuario> {
     return this.http.get<Usuario>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
@@ -36,7 +43,14 @@ export class UsuariosService {
       .pipe(catchError(this.handleError));
   }
 
-  /** Exclui usuário */
+  /** Ativa usuário */
+  ativar(id: number): Observable<Usuario> {
+    return this.http
+      .patch<Usuario>(`${this.apiUrl}/${id}/ativar`, {})
+      .pipe(catchError(this.handleError));
+  }
+
+  /** Exclui usuário (não vamos usar, apenas manter a API completa) */
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
   }
